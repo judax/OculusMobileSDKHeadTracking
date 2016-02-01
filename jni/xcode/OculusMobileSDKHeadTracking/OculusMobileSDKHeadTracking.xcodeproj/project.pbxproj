@@ -100,7 +100,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ../../../jni/\n./RebuildAndCopyLibrariesToDefaultTest.sh\n";
+			shellScript = "cd ../../../jni/\n./BuildAndCopyToTest.sh\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
