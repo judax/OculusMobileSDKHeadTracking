@@ -32,7 +32,7 @@ build/oculusmobilesdkheadtracking.jar
 Also copy the whole `build/armeabi-v7a` folder to your projects `libs` older.
 
 2. Use the library inside your code. The API is the simplest possible but some steps needs to be followed.
-  1. Create an `OculudMobileSDKHeadTracking` instance.
+  1. Create an `OculusMobileSDKHeadTracking` instance.
   2. Call the `start` method of the instance passing a reference to the Activity that will include the 
   3. Call the `getView` method of the instance to get a view that needs to be added somehow in the view hierarchy of your app.
   4. Call the `resume`, `pause` and `stop` methods of the instance in the corresponding `onResume`, `onPause` and `onDestroy` of the Activity.
@@ -49,43 +49,4 @@ https://github.com/judax/OculusMobileSDKHeadTrackingWebVR
 Oculus Mobile SDK website
 
 
-
-IDEAS
-
-* Add explanation on how the final Oculus libraries have been acquired: some already compiled. openglloader has to be compiled and included as whole.
-
-* Different projects
-	- OculusMobileSDKHeadTracking
-		+ Add pause and resume
-		+ Add a listener (decide what info to provide from the headtracking pose)
-	- OculusMobileSDKHeadTrackingCrosswalkExtension
-	- OculusMobileSDKHeadTrackingCordovaPlugin
-	- OculusMobileSDKheadTrackingCrosswalkApp
-
-* Explain why/how xcode
-	- Remove build phases.
-	- Add the ndk build script phase.
-	- If someone wants to add a different IDE support, is more than welcome.
-	- Importance of having the ANDROID_NDK_PATH environment variable set.
-
-* Explain why/how Eclipse
-	- The version used INDIGO (it should work on newer versions)
-	- The builder to copy the jar to the build folder and to the default test.
-	- the execution of the .sh to convert JS in one line and the limitations of that.
-	- explain that the test needs to be refreshed to be able to see the changes in the other project. Another option is to link both projects in Eclipse.
-	- explain the use of crosswalk with a link of the two eclipse projects.
-	- explain that libraries are copied to the libs folder and used directly from there.
-
-* Explain what has been taken from the Oculus Mobile SDK v 1.0.0.0
-	- Taken only the minimum libraries needed.
-	- How the openglloader library has been compiled.
-
-* Explain how the test works copying the final library to the libs folder of the eclipse project
-
-* Explain that I have built everything using NDK-r9b
-
-* Have two different sections: one "How to use the library" and the other for the ones that want to build it and contribute to the project.
-	- To be able to test the APKs, the osigs needs to be added to the assets folder. Add links to explanations on how to generate the osigs.
-
-* Explain that is necessary to have the ANDROID_HOME environment varibale set to be able to create javadoc.
 
