@@ -62,7 +62,7 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		oculusMobileSDKHeadTracking.addOculusMobileSDKHeadTrackingListener(new OculusMobileSDKHeadTrackingListener()
 		{
 			@Override
-			public void headTrackingOrientationUpdated(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, float x, float y, float z, float w)
+			public void orientationUpdated(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, float x, float y, float z, float w)
 			{
 				runnable.x = x;
 				runnable.y = y;

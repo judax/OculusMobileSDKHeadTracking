@@ -187,7 +187,7 @@ public class OculusMobileSDKHeadTracking
 		OculusMobileSDKHeadTrackingListener[] oculusMobileSDKHeadTrackingListenersArray = createOculusMobileSDKHeadTrackingListenersArray();
 		for (OculusMobileSDKHeadTrackingListener listener: oculusMobileSDKHeadTrackingListenersArray)
 		{
-			listener.headTrackingOrientationUpdated(this, x, y, z, w);
+			listener.orientationUpdated(this, x, y, z, w);
 		}
 	}
 	
