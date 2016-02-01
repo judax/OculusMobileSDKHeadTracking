@@ -3,7 +3,7 @@ MY_LOCAL_PATH := $(call my-dir)
 # ==========================================================
 # vrapi
 # ==========================================================
-LOCAL_PATH := ./ovr_sdk_mobile_1.0.0.0
+LOCAL_PATH := ../3rdparty/ovr_sdk_mobile_1.0.0.0/armeabi-v7a
 include $(CLEAR_VARS)
 LOCAL_MODULE := vrapi
 LOCAL_SRC_FILES := \
@@ -13,7 +13,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 # ==========================================================
 # systemutils
 # ==========================================================
-LOCAL_PATH := ./ovr_sdk_mobile_1.0.0.0
+LOCAL_PATH := ../3rdparty/ovr_sdk_mobile_1.0.0.0/armeabi-v7a
 include $(CLEAR_VARS)
 LOCAL_MODULE := systemutils
 LOCAL_SRC_FILES := \
@@ -23,7 +23,7 @@ include $(PREBUILT_STATIC_LIBRARY)
 # ==========================================================
 # openglloader
 # ==========================================================
-LOCAL_PATH := ./ovr_sdk_mobile_1.0.0.0
+LOCAL_PATH := ../3rdparty/ovr_sdk_mobile_1.0.0.0/armeabi-v7a
 include $(CLEAR_VARS)
 LOCAL_MODULE := openglloader
 LOCAL_SRC_FILES := \
@@ -33,7 +33,7 @@ include $(PREBUILT_STATIC_LIBRARY)
 # ==========================================================
 # ovrkernel
 # ==========================================================
-LOCAL_PATH := ./ovr_sdk_mobile_1.0.0.0
+LOCAL_PATH := ../3rdparty/ovr_sdk_mobile_1.0.0.0/armeabi-v7a
 include $(CLEAR_VARS)
 LOCAL_MODULE := ovrkernel
 LOCAL_SRC_FILES := \
@@ -48,7 +48,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := OculusMobileSDKHeadTracking
 LOCAL_C_INCLUDES := \
 	. \
-	./ovr_sdk_mobile_1.0.0.0
+	../3rdparty/ovr_sdk_mobile_1.0.0.0/include
 LOCAL_SRC_FILES := \
 	./OculusMobileSDKHeadTracking.cpp 
 LOCAL_CFLAGS := -std=c++11 -Werror 
