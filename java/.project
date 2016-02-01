@@ -30,7 +30,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/CopyJarToBuildAndToDefaultTest.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/OculusMobileSDKHEadTracking_CopyJarToBuildAndToTest.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
@@ -39,7 +39,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/GeneratJavadoc.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/OculusMobileSDKHEadTracking_GenerateJavadoc.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
