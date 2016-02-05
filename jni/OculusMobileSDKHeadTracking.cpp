@@ -5,9 +5,9 @@
 
 #include <pthread.h>
 
-#include "LogUtils.h"
 #include <android/native_window_jni.h>	// for native window JNI
 #include <android/input.h>
+#include <android/log.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -17,6 +17,10 @@
 #include "VrApi.h"
 #include "VrApi_Helpers.h"
 #include "SystemActivities.h"
+
+#define LOG_TAG "OculusMobileSDKHeadTracking"
+#define LOG_ERROR(...) __android_log_print( ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__ )
+#define LOG_MESSAGE(...) __android_log_print( ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__ )
 
 // ================================================================================================
 // Some of the Oculus Mobile SDK Math helpers
@@ -661,13 +665,16 @@ private:
     jobject activityJObject;
     jobject oculusMobileSDKHeadTrackingJObject;
     jclass oculusMobileSDKHeadTrackingJClass;
-    jmethodID setTrackingOrientationMethodID;
+    jmethodID headTrackingStartedMethodID;
+    jmethodID headTrackingUpdatedMethodID;
+    jmethodID headTrackingErrorMethodID;
     ovrMobile* ovr;
     long long frameIndex;
     ANativeWindow* nativeWindow;
     ovrMessageQueue messageQueue;
     bool destroyed;
     bool resumed;
+    bool started;
     ovrEgl egl;
     ovrJava java;
     
@@ -700,6 +707,19 @@ private:
 #if EXPLICIT_GL_OBJECTS == 0
                 LOG_MESSAGE( "        eglGetCurrentSurface( EGL_DRAW ) = %p", eglGetCurrentSurface( EGL_DRAW ) );
 #endif
+                if (!started)
+                {
+                    started = true;
+                    const ovrHeadModelParms headModelParms = vrapi_DefaultHeadModelParms();
+                    
+                    float eyeX = vrapi_GetSystemPropertyFloat(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_FOV_DEGREES_X);
+                    float eyeY = vrapi_GetSystemPropertyFloat(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_FOV_DEGREES_Y);
+                    float interpupillaryDistance = headModelParms.InterpupillaryDistance;
+                    
+                    LOG_MESSAGE("Started!!!!! eyeX = %f, eyeY = %f, interpupillaryDistance = %f", eyeX, eyeY, interpupillaryDistance);
+                    
+                    java.Env->CallVoidMethod(oculusMobileSDKHeadTrackingJObject, headTrackingStartedMethodID, eyeX, eyeY, interpupillaryDistance);
+                }
             }
         }
         else
@@ -737,6 +757,9 @@ private:
             char const * msg = initResult == VRAPI_INITIALIZE_PERMISSIONS_ERROR ?
             "Thread priority security exception. Make sure the APK is signed." :
             "VrApi initialization error.";
+            
+            java.Env->CallVoidMethod(oculusMobileSDKHeadTrackingJObject, headTrackingErrorMethodID, java.Env->NewStringUTF(msg));
+            
             SystemActivities_DisplayError(&java, SYSTEM_ACTIVITIES_FATAL_ERROR_OSIG, __FILE__, msg);
         }
         
@@ -750,6 +773,8 @@ private:
         LOG_MESSAGE("OculusMobileSDKHeadTracking thread running...");
         
         frameIndex = 0;
+        
+        const ovrHeadModelParms headModelParms = vrapi_DefaultHeadModelParms();
         
         for (destroyed = false; !destroyed ;)
         {
@@ -799,7 +824,6 @@ private:
             const double predictedDisplayTime = vrapi_GetPredictedDisplayTime(ovr, frameIndex);
             const ovrTracking baseTracking = vrapi_GetPredictedTracking(ovr, predictedDisplayTime);
             
-            const ovrHeadModelParms headModelParms = vrapi_DefaultHeadModelParms();
             const ovrTracking tracking = vrapi_ApplyHeadModel(&headModelParms, &baseTracking);
             
 //            // Position and orientation together.
@@ -842,7 +866,25 @@ private:
 //            float yaw, eyePitch, eyeRoll;
 //            quat.GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&yaw, &eyePitch, &eyeRoll);
             
-            java.Env->CallVoidMethod(oculusMobileSDKHeadTrackingJObject, setTrackingOrientationMethodID, tracking.HeadPose.Pose.Orientation.x, tracking.HeadPose.Pose.Orientation.y, tracking.HeadPose.Pose.Orientation.z, tracking.HeadPose.Pose.Orientation.w);
+            java.Env->CallVoidMethod(oculusMobileSDKHeadTrackingJObject, headTrackingUpdatedMethodID,
+                                     tracking.HeadPose.TimeInSeconds,
+                                     tracking.HeadPose.Pose.Orientation.x,
+                                     tracking.HeadPose.Pose.Orientation.y,
+                                     tracking.HeadPose.Pose.Orientation.z,
+                                     tracking.HeadPose.Pose.Orientation.w,
+                                     tracking.HeadPose.LinearVelocity.x,
+                                     tracking.HeadPose.LinearVelocity.y,
+                                     tracking.HeadPose.LinearVelocity.z,
+                                     tracking.HeadPose.LinearAcceleration.x,
+                                     tracking.HeadPose.LinearAcceleration.y,
+                                     tracking.HeadPose.LinearAcceleration.z,
+                                     tracking.HeadPose.AngularVelocity.x,
+                                     tracking.HeadPose.AngularVelocity.y,
+                                     tracking.HeadPose.AngularVelocity.z,
+                                     tracking.HeadPose.AngularAcceleration.x,
+                                     tracking.HeadPose.AngularAcceleration.y,
+                                     tracking.HeadPose.AngularAcceleration.z
+                                     );
             
             // Yield or wait
 //            sched_yield(); // Does not have to really "free" the CPU from this thread
@@ -865,6 +907,8 @@ private:
         
         java.Vm->DetachCurrentThread();
         
+        started = false;
+        
         LOG_MESSAGE("OculusMobileSDKHeadTracking thread stopped!");
     }
     
@@ -876,7 +920,7 @@ private:
     }
     
 public:
-    OculusMobileSDKHeadTracking(): javaVM(NULL), resumed(false), destroyed(false), ovr(NULL), frameIndex(0), nativeWindow(NULL)
+    OculusMobileSDKHeadTracking(): javaVM(NULL), resumed(false), destroyed(false), started(false), ovr(NULL), frameIndex(0), nativeWindow(NULL)
     {
         ovrEgl_Clear(&egl);
     }
@@ -888,13 +932,16 @@ public:
         this->oculusMobileSDKHeadTrackingJObject = jniEnv->NewGlobalRef(oculusMobileSDKHeadTrackingJObject);
         // Cache the jni method that will be continously called
         oculusMobileSDKHeadTrackingJClass = jniEnv->GetObjectClass(oculusMobileSDKHeadTrackingJObject);
-        setTrackingOrientationMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "setTrackingOrientationFromNative", "(FFFF)V");
+        headTrackingStartedMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "headTrackingStartedFromNative", "(FFF)V");
+        headTrackingUpdatedMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "headTrackingUpdatedFromNative", "(DFFFFFFFFFFFFFFFF)V");
+        headTrackingErrorMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "headTrackingErrorFromNative", "(Ljava/lang/String;)V");
         
         ovrMessageQueue_Create(&messageQueue);
         
         const int createErr = pthread_create( &thread, NULL, threadFunctionStatic, this);
         if ( createErr != 0 )
         {
+            jniEnv->CallVoidMethod(oculusMobileSDKHeadTrackingJObject, headTrackingErrorMethodID, java.Env->NewStringUTF("Could not create native head tracking thread."));
             LOG_ERROR("pthread_create returned %i", createErr);
         }
         

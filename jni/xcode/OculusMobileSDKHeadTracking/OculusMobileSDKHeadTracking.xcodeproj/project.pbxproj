@@ -8,7 +8,6 @@
 
 /* Begin PBXFileReference section */
 		BDE547AF1C5D178200DE09AD /* libOculusMobileSDKHeadTracking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOculusMobileSDKHeadTracking.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		BDE547BE1C5D180600DE09AD /* LogUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LogUtils.h; path = ../../../LogUtils.h; sourceTree = "<group>"; };
 		BDE547C01C5D180600DE09AD /* OculusMobileSDKHeadTracking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OculusMobileSDKHeadTracking.cpp; path = ../../../OculusMobileSDKHeadTracking.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -32,7 +31,6 @@
 		BDE547B11C5D178200DE09AD /* OculusMobileSDKHeadTracking */ = {
 			isa = PBXGroup;
 			children = (
-				BDE547BE1C5D180600DE09AD /* LogUtils.h */,
 				BDE547C01C5D180600DE09AD /* OculusMobileSDKHeadTracking.cpp */,
 			);
 			path = OculusMobileSDKHeadTracking;

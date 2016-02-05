@@ -11,12 +11,15 @@ import android.view.View;
 /**
  * This class allows to acquire just the head tracking information (orientation) from the Oculus mobile SDK.
  * An activity life cycle events are passed along to instances of this class.
- * Any class can register to listen to head tracking orientation updates.
+ * Any class can register to listen to head tracking events. Instances of this class also internally store the
+ * state of the head tracking values. These values can be retrieved any time calling the corresponding get methods.
  * At least for now, the view that instances of this class provide needs to be added to the view hierarchy
  * in order for the head tracking acquisition mechanism to work. This view won't be used to render anything
- * so there are several recommendations on how to add the view inside your apps:
- * 1) Add the view as a 1x1 pixel size view using the corresponding layout params.
- * 2) Use a FrameLayout to add the view and then add your app's views on top of it.  
+ * so there are several recommendations on how to add the view inside your applications:
+ * 1) Use a FrameLayout to add the view and then add your app's views on top of it. Recommended. FrameLayout-s stack views
+ * one on top of the other. The view required for the head tracking to work can be occluded by the view of your app.  
+ * 2) Add the view as a 1x1 pixel size view using the corresponding layout parameters. Not recommended as at least one
+ * pixel of you application will be used by this view. Not a perfect solution but works
  * 
  * @author JudaX
  *
@@ -28,6 +31,10 @@ public class OculusMobileSDKHeadTracking
 	private long nativeObjectPtr;
 	private SurfaceHolderCallback surfaceHolderCallback = new SurfaceHolderCallback();
 	private ArrayList<OculusMobileSDKHeadTrackingListener> oculusMobileSDKHeadTrackingListeners = new ArrayList<OculusMobileSDKHeadTrackingListener>();
+
+	private boolean started = false;
+	private String errorMessage = "";
+	private OculusMobileSDKHeadTrackingData data = new OculusMobileSDKHeadTrackingData();
 	
 	/**
 	 * Call this method to initialize the Oculus mobile head tracking.
@@ -92,6 +99,30 @@ public class OculusMobileSDKHeadTracking
 		nativeObjectPtr = 0;
 	}
 	
+	/**
+	 * @return if the head tracking has started (true) or not (false)
+	 */
+	public boolean hasStarted()
+	{
+		return started;
+	}
+		
+	/**
+	 * @return the errorMessage
+	 */
+	public String getErrorMessage()
+	{
+		return errorMessage;
+	}
+	
+	/**
+	 * @return the current head tracking data.
+	 */
+	public OculusMobileSDKHeadTrackingData getData()
+	{
+		return data;
+	}
+
 	private class SurfaceHolderCallback implements SurfaceHolder.Callback
 	{
 		@Override
@@ -169,6 +200,12 @@ public class OculusMobileSDKHeadTracking
 		oculusMobileSDKHeadTrackingListeners.clear();
 	}
 	
+	/**
+	 * Copy all the listeners to an array in a synchronized method. Calling an unknown listener may block 
+	 * the execution indefinitely so it is better to make a copy synchronously and make the calls without blocking the 
+	 * add/remove/removeAll methods to add other listeners from other threads. 
+	 * @return A copy of all the listeners to be used in callback calls.
+	 */
 	private synchronized OculusMobileSDKHeadTrackingListener[] createOculusMobileSDKHeadTrackingListenersArray()
 	{
 		OculusMobileSDKHeadTrackingListener[] oculusMobileSDKHeadTrackingListenersArray = new OculusMobileSDKHeadTrackingListener[oculusMobileSDKHeadTrackingListeners.size()];
@@ -176,18 +213,76 @@ public class OculusMobileSDKHeadTracking
 	}
 	
 	/**
-	 * This method will be called from the native side providing the orientation.
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * This method will be called from the native side when the native head tracking system has really started.
 	 */
-	private void setTrackingOrientationFromNative(float x, float y, float z, float w)
+	private void headTrackingStartedFromNative(float xFOV, float yFOV, float interpupillaryDistance)
 	{
+		data.xFOV = xFOV;
+		data.yFOV = yFOV;
+		data.interpupillaryDistance = interpupillaryDistance;
+		started = true;
+		// Notify all the registered listeners
 		OculusMobileSDKHeadTrackingListener[] oculusMobileSDKHeadTrackingListenersArray = createOculusMobileSDKHeadTrackingListenersArray();
 		for (OculusMobileSDKHeadTrackingListener listener: oculusMobileSDKHeadTrackingListenersArray)
 		{
-			listener.orientationUpdated(this, x, y, z, w);
+			listener.headTrackingStarted(this, data);
+		}
+	}
+	
+	/**
+	 * This method will be called from the native side every time there is an error in the head tracking native side.
+	 */
+	private void headTrackingErrorFromNative(String errorMessage)
+	{
+		synchronized(this)
+		{
+			this.errorMessage = errorMessage;
+		}
+		// Notify all the registered listeners
+		OculusMobileSDKHeadTrackingListener[] oculusMobileSDKHeadTrackingListenersArray = createOculusMobileSDKHeadTrackingListenersArray();
+		for (OculusMobileSDKHeadTrackingListener listener: oculusMobileSDKHeadTrackingListenersArray)
+		{
+			listener.headTrackingError(this, errorMessage);
+		}
+	}
+	
+	/**
+	 * This method will be called from the native side every time there is a head tracking information update.
+	 */
+	private void headTrackingUpdatedFromNative(
+					double timeStamp,
+					float orientationX, float orientationY, float orientationZ, float orientationW,
+					float linearVelocityX, float linearVelocityY, float linearVelocityZ,
+					float angularVelocityX, float angularVelocityY, float angularVelocityZ,
+					float linearAccelerationX, float linearAccelerationY, float linearAccelerationZ,
+					float angularAccelerationX, float angularAccelerationY, float angularAccelerationZ)
+	{
+		// Store the information
+		synchronized(this)
+		{
+			data.timeStamp = timeStamp;
+			data.orientationX = orientationX;
+			data.orientationY = orientationY;
+			data.orientationZ = orientationZ;
+			data.orientationW = orientationW;
+			data.angularVelocityX = angularVelocityX;
+			data.angularVelocityY = angularVelocityY;
+			data.angularVelocityZ = angularVelocityZ;
+			data.linearVelocityX = linearVelocityX;
+			data.linearVelocityY = linearVelocityY;
+			data.linearVelocityZ = linearVelocityZ;
+			data.linearAccelerationX = linearAccelerationX;
+			data.linearAccelerationY = linearAccelerationY;
+			data.linearAccelerationZ = linearAccelerationZ;
+			data.angularAccelerationX = angularAccelerationX;
+			data.angularAccelerationY = angularAccelerationY;
+			data.angularAccelerationZ = angularAccelerationZ;
+		}
+		// Notify all the registered listeners
+		OculusMobileSDKHeadTrackingListener[] oculusMobileSDKHeadTrackingListenersArray = createOculusMobileSDKHeadTrackingListenersArray();
+		for (OculusMobileSDKHeadTrackingListener listener: oculusMobileSDKHeadTrackingListenersArray)
+		{
+			listener.headTrackingUpdated(this, data);
 		}
 	}
 	
