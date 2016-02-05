@@ -7,38 +7,45 @@
     android:orientation="vertical" >
 
     <TextView
+        android:id="@+id/headTrackingTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/timeStampTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
+
+    <TextView
         android:id="@+id/orientationTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Head Tracking Orientation:" />
+        android:gravity="center" />
 
     <TextView
-        android:id="@+id/xTextView"
+        android:id="@+id/linearVelocityTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="TextView" />
+        android:gravity="center" />
 
     <TextView
-        android:id="@+id/yTextView"
+        android:id="@+id/linearAccelerationTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="TextView" />
+        android:gravity="center" />
 
     <TextView
-        android:id="@+id/zTextView"
+        android:id="@+id/angularVelocityTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="TextView" />
+        android:gravity="center" />
 
     <TextView
-        android:id="@+id/wTextView"
+        android:id="@+id/angularAccelerationTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="TextView" />
+        android:gravity="center" />
 
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.judax.oculusmobilesdkheadtracking.test;
 
 import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTracking;
+import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTrackingData;
 import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTrackingListener;
 
 import android.app.Activity;
@@ -11,12 +12,16 @@ import android.widget.TextView;
 
 public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 {
+	private static final String HEAD_TRACKING_TEXT_VIEW_TEXT = "Head Tracking State: ";
 	private OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking = new OculusMobileSDKHeadTracking();
-	private TextView xTextView = null;
-	private TextView yTextView = null;
-	private TextView zTextView = null;
-	private TextView wTextView = null;
-	private TextEditsUpdateRunnable runnable = new TextEditsUpdateRunnable();
+	private TextView headTrackingTextView = null;
+	private TextView timeStampTextView = null;
+	private TextView orientationTextView = null;
+	private TextView linearVelocityTextView = null;
+	private TextView linearAccelerationTextView = null;
+	private TextView angularVelocityTextView = null;
+	private TextView angularAccelerationTextView = null;
+	private HeadTrackingDataTextEditsUpdateRunnable runnable = new HeadTrackingDataTextEditsUpdateRunnable();
 	
 	/**
 	 * Shows the head tracking orientation values on the corresponding TextView-s.
@@ -28,17 +33,29 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 	 * @author JudaX
 	 *
 	 */
-	private class TextEditsUpdateRunnable implements Runnable
+	private class HeadTrackingDataTextEditsUpdateRunnable implements Runnable
 	{
-		public float x, y, z, w;
+		private String getString(float x, float y, float z)
+		{
+			return String.format("(%.4f, %.4f, %.4f)", x, y, z);
+		}
+		
+		private String getString(float x, float y, float z, float w)
+		{
+			return String.format("(%.4f, %.4f, %.4f, %.4f)", x, y, z, w);
+		}
 		
 		@Override
 		public void run()
 		{
-			xTextView.setText("x: " + String.format("%.4f", x));
-			yTextView.setText("y: " + String.format("%.4f", y));
-			zTextView.setText("z: " + String.format("%.4f", z));
-			wTextView.setText("w: " + String.format("%.4f", w));
+			headTrackingTextView.setText(HEAD_TRACKING_TEXT_VIEW_TEXT + "Updated");
+			OculusMobileSDKHeadTrackingData data = oculusMobileSDKHeadTracking.getData();
+			timeStampTextView.setText("timeStamp: " + String.format("%.4f", data.timeStamp));
+			orientationTextView.setText("orientation: " + getString(data.orientationX, data.orientationY, data.orientationZ, data.orientationW));
+			linearVelocityTextView.setText("linearVelocity: " + getString(data.linearVelocityX, data.linearVelocityY, data.linearVelocityZ));
+			linearAccelerationTextView.setText("linearAcceleration: " + getString(data.linearAccelerationX, data.linearAccelerationY, data.linearAccelerationZ));
+			angularVelocityTextView.setText("angularVelocity: " + getString(data.angularVelocityX, data.angularVelocityY, data.angularVelocityZ));
+			angularAccelerationTextView.setText("angularAcceleration: " + getString(data.angularAccelerationX, data.angularAccelerationY, data.angularAccelerationZ));
 		}
 	}
 	
@@ -51,10 +68,14 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		
 		ViewGroup mainViewGroup = (ViewGroup)findViewById(R.id.mainLayout);
 		
-		xTextView = (TextView)findViewById(R.id.xTextView);
-		yTextView = (TextView)findViewById(R.id.yTextView);
-		zTextView = (TextView)findViewById(R.id.zTextView);
-		wTextView = (TextView)findViewById(R.id.wTextView);
+		headTrackingTextView = (TextView)findViewById(R.id.headTrackingTextView);
+		headTrackingTextView.setText(HEAD_TRACKING_TEXT_VIEW_TEXT + "Not started yet");
+		timeStampTextView = (TextView)findViewById(R.id.timeStampTextView);
+		orientationTextView = (TextView)findViewById(R.id.orientationTextView);
+		linearVelocityTextView = (TextView)findViewById(R.id.linearVelocityTextView);
+		linearAccelerationTextView = (TextView)findViewById(R.id.linearAccelerationTextView);
+		angularVelocityTextView = (TextView)findViewById(R.id.angularVelocityTextView);
+		angularAccelerationTextView = (TextView)findViewById(R.id.angularAccelerationTextView);
 		
 		// Initialize the oculus mobile sdk head tracking
 		oculusMobileSDKHeadTracking.start(this);
@@ -62,13 +83,37 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		oculusMobileSDKHeadTracking.addOculusMobileSDKHeadTrackingListener(new OculusMobileSDKHeadTrackingListener()
 		{
 			@Override
-			public void orientationUpdated(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, float x, float y, float z, float w)
+			public void headTrackingStarted(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, OculusMobileSDKHeadTrackingData data)
 			{
-				runnable.x = x;
-				runnable.y = y;
-				runnable.z = z;
-				runnable.w = w;
+				runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						headTrackingTextView.setText(HEAD_TRACKING_TEXT_VIEW_TEXT + "Started");
+						System.out.println("Started!!!");
+					}
+				});
+			}
+			
+			@Override
+			public void headTrackingUpdated(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, OculusMobileSDKHeadTrackingData data)
+			{
 				runOnUiThread(runnable);
+			}
+
+			@Override
+			public void headTrackingError(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, final String errorMessage)
+			{
+				runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						headTrackingTextView.setText(HEAD_TRACKING_TEXT_VIEW_TEXT + "Error");
+						System.err.println("Head Tracking Error: " + errorMessage);
+					}
+				});
 			}
 		});
 		// It is necessary to add the view from the oculus mobile sdk head tracking to the view hierarchy.
