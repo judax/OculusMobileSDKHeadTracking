@@ -12,9 +12,11 @@ The Oculus Mobile SDK allows to access a highly accurate head tracking hardware 
 * **test**: A simple test that shows how to use the library. It simply shows the orientation quaternion value on screen.
 
 ## Assumptions
+
 * This documentation will assume that you have experience on Android development and more specifically on using Eclipse to develop Android projects.
 * This project provides some already built libraries. Of course, you can decide to use other versions of the same libraries or even build them yourself.
-* Although some links and information will be provided, some knowledge on Oculus Mobile app development (specifically on the Samsung Gear VR) might come handy. Some helpful tips are provided in the sector "Samsung/Oculus Gear VR setup for using custom apps".
+* Although some links and information will be provided, some knowledge on Oculus Mobile app development (specifically on the Samsung Gear VR) might come handy.
+* You will need to have the Android SDK installed along with Eclipse and the ADT plugin for Eclipse. If you want to build the Android native source code too, you will need to have at least the Android NDK version r9b installed.
 
 ## Setup your Samsung/Oculus Gear VR
 
@@ -36,18 +38,101 @@ The easiest way to have a glimpse on how to use the library is to check the `tes
 
 ### Use the library in your own project
 
-You might as well want to create your own project that uses the libraries. The final products are stored in the `build` folder, so if you already know how to include Android libraries in your projects directly copying all the content of the `build` folder in your project's `libs` folder should be enough. Anyway, let's review the possible steps to use the libraries.
+You might as well want to create your own project that uses the libraries. The final products are stored in the `build` folder. Remember that this library is also dependant on the Oculus Mobile SDK which final products are also provided along in this repository for your convenience. These are the steps you need to follow in order to use this library:
 
 1. The OculusMobileSDKHeadTracking final libraries are available at the `build` folder. Just copy all the content of this `build` folder to the `libs` folder of your Eclipse project.
+2. This project depends on the Oculus Mobile SDK. Luckily the necessary libraries are provided the `3rdparty` folder. These are the files you need to copy to the `libs` folder of your Eclipse project:
+  * **`3rdparty/ovr_sdk_mobile_1.0.0.0/SystemUtils.jar`**
+  * **`3rdparty/ovr_sdk_mobile_1.0.0.0/VrApi.jar`**
 
-2. Use the library inside your code.
+  **NOTE:** The `libvrapi.so` file is directly provided along with the `liboculusmobilesdkheadtracking.so` file. A copy of the same version of the file is also included in the `3rdparty/ovr_sdk_mobile_1.0.0.0/armeabi-v7a` folder in case you need it.
+3. Use the library inside your code.
   1. Create an `OculusMobileSDKHeadTracking` instance.
   2. Implement the `OculusMobileSDKHeadTrackingListener` interface. This step is not mandatory but listening to the events can come handy to know when the tracking has started, get notifications on head tracking updates or be notified about possible errors. You can still acquire the head tracking values by calling the `getData` method.
-  2. Call the `start` method of the instance passing a reference to the Activity that is using the library (most likely the activity that has instanitated the `OculusMobileSDKHeadTracking` class).
-  3. Call the `getView` method of the instance to get a view that needs to be added somehow in the view hierarchy of your app.
-  4. Call the `resume`, `pause` and `stop` methods of the instance in the corresponding `onResume`, `onPause` and `onDestroy` of the Activity.
+  3. Call the `start` method of the instance passing a reference to the Activity that is using the library. This call should most likely be made from the `onCreate` of the activity that has instanitated the `OculusMobileSDKHeadTracking` class.
+  4. Call the `getView` method of the instance to get a view that needs to be added somehow in the view hierarchy of your app.
+  5. Call the `resume`, `pause` and `stop` methods of the instance in the corresponding `onResume`, `onPause` and `onDestroy` of the Activity.
 
-3. Include your Oculus Signature File (OSIG) in the assets folder of your project. You can generate yout Oculus OSIG file at [https://developer.oculus.com/osig/](https://developer.oculus.com/osig/). Check the section above on how to setup your Samsung Device for Gear VR development if necessary.
+  Here is some source code of a possible Activity skeleton that uses the library:
+
+  ```
+  package com.judax.oculusmobilesdkheadtracking.test;
+  
+  import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTracking;
+  import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTrackingData;
+  import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTrackingListener;
+  
+  import android.app.Activity;
+  import android.os.Bundle;
+  import android.widget.FrameLayout;
+  
+  public class OculusMobileSDKHeadTrackingTestActivity extends Activity
+  {
+	  private OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking = new OculusMobileSDKHeadTracking();
+  	
+  	  @Override
+    	protected void onCreate(Bundle savedInstanceState)
+    	{
+  		super.onCreate(savedInstanceState);
+  		
+  	    FrameLayout layout = new FrameLayout(this);
+  
+  		// Initialize the oculus mobile sdk head tracking
+  		oculusMobileSDKHeadTracking.start(this);
+  
+  		// Listen to the Oculus mobile sdk head tracking events
+  		oculusMobileSDKHeadTracking.addOculusMobileSDKHeadTrackingListener(new OculusMobileSDKHeadTrackingListener()
+  		{
+  			@Override
+  			public void headTrackingStarted(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, OculusMobileSDKHeadTrackingData data)
+  			{
+  			}
+  			
+  			@Override
+  			public void headTrackingUpdated(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, OculusMobileSDKHeadTrackingData data)
+  			{
+  			}
+  
+  			@Override
+  			public void headTrackingError(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, final String errorMessage)
+  			{
+  			}
+  		});
+  
+  		// Add the view provided by the oculus mobile head tracking instance to the view hierarchy
+  	    layout.addView(oculusMobileSDKHeadTracking.getView());
+  
+  	    // ...
+  	    // Add your layout/UI here to the main layout. As the main layout is a framelayout, your UI will be on top of the view provided by the OculusMobileSDKHeadTracking that will be occluded.
+  	    // ....
+  	    
+  	    setContentView(layout);
+  	}
+  	
+  	@Override
+  	protected void onResume()
+  	{
+  		super.onResume();
+  		oculusMobileSDKHeadTracking.resume();
+  	}
+  	
+  	@Override
+  	protected void onPause()
+  	{
+  		super.onPause();
+  		oculusMobileSDKHeadTracking.pause();
+  	}
+  	
+  	@Override
+  	protected void onDestroy()
+  	{
+  		super.onDestroy();
+  		oculusMobileSDKHeadTracking.stop();
+  	}
+  }
+  ```
+
+4. Include your Oculus Signature File (OSIG) in the assets folder of your project. You can generate yout Oculus OSIG file at [https://developer.oculus.com/osig/](https://developer.oculus.com/osig/). Check the section above on how to setup your Samsung Device for Gear VR development if necessary.
 
 ## How to build the library
 
@@ -79,11 +164,13 @@ To build and test this project, this is all the information about the system I h
 * Samsung Galaxy S6 with Android 5.0.2
 * Samsung Gear VR
 
+**NOTE:** As some of the Eclipse projects include Builders that execute bask scripts, this setup won't fully work on systems that are not able to execute bash scripts (non UNIX based systems like Windows). Transforming these bash scripts to other command line based scripts should be fairly easy. Also, eliminating the builders and performing some operations by hand (like copying the final products/libraries to the right place) or referencing an Eclipse project from a different one could be the answer to these inconveniences. This is only applicable for those who want to build their own libraries as the test project should be self contained.
+
 ## Related Projects
 
 * [OculusMobileSDKHeadTrackingXWalkViewExtension](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension): A Crosswalk extension to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment. 
 * OculusMobileSDKHeadTrackingCordovaPlugin: A Cordova plugin to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment.
-* [OculusMobileSDKHeadTrackingWebVR](https://github.com/judax/OculusMobileSDKHeadTrackingWebVR): A JavaScript file that injects the WebVR API using the underlying Oculus Mobiel SDK Head Tracking mechanism exposed as a Crosswalk extension or a Cordova plugin.
+* [OculusMobileSDKHeadTrackingWebVR](https://github.com/judax/OculusMobileSDKHeadTrackingWebVR): A JavaScript file that injects the WebVR API using the underlying Oculus Mobile SDK Head Tracking mechanism exposed to JS through a Crosswalk extension or a Cordova plugin.
 
 ## Other References
 
