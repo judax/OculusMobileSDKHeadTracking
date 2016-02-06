@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="generate-javadoc" basedir=".">
+	<property environment="env"/>
+    
+	<target name="generate-javadoc">
+		<javadoc packagenames="com.judax.oculusmobilesdkheadtracking"
+		         sourcepath="src"
+		         defaultexcludes="yes"
+		         destdir="../javadoc"
+		         author="true"
+		         version="true"
+		         use="true"
+		         classpath="${env.ANDROID_HOME}/platforms/android-9/android.jar"
+		         windowtitle="Oculud Mobile SDK Head Tracking">
+		</javadoc>
+  	</target>
+</project>

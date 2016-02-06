@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="copy-jar" basedir=".">
+	<!-- IMPORTANT: Set the project name -->
+	<property name="project.name" value="oculusmobilesdkheadtracking"/>
+	
+	<!-- 
+		Check if the outout jar exists.
+		This will check for the output jar with name ${project.name}.jar as that is the name of the ouput jar when it is compiled 
+		from eclipse.
+	-->
+	<target name="check-project.name.jar">
+		<available file="bin/${project.name}.jar" property="project.name.jar.present"/>
+	</target>
+
+	<!-- If the ${project.name}.jar exists under bin/, copy it to the build folder and to the test -->
+	<target name="copy-jar" if="project.name.jar.present" depends="check-project.name.jar">
+ 		<copy file="bin/${project.name}.jar" todir="../test/libs" includeemptydirs="false"/>
+		<copy file="bin/${project.name}.jar" todir="../build" includeemptydirs="false"/>
+	</target>
+</project>
