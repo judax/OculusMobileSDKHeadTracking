@@ -12,7 +12,7 @@
 		         version="true"
 		         use="true"
 		         classpath="${env.ANDROID_HOME}/platforms/android-9/android.jar"
-		         windowtitle="Oculud Mobile SDK Head Tracking">
+		         windowtitle="Oculus Mobile SDK Head Tracking">
 		</javadoc>
   	</target>
 </project>
