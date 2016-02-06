@@ -77,9 +77,7 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		angularVelocityTextView = (TextView)findViewById(R.id.angularVelocityTextView);
 		angularAccelerationTextView = (TextView)findViewById(R.id.angularAccelerationTextView);
 		
-		// Initialize the oculus mobile sdk head tracking
-		oculusMobileSDKHeadTracking.start(this);
-		// Listen to orientation updates
+		// Register to listen to Oculus Mobile SDK head tracking events
 		oculusMobileSDKHeadTracking.addOculusMobileSDKHeadTrackingListener(new OculusMobileSDKHeadTrackingListener()
 		{
 			@Override
@@ -116,9 +114,14 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 				});
 			}
 		});
+		
+		// Initialize the oculus mobile sdk head tracking
+		oculusMobileSDKHeadTracking.start(this);
+		
 		// It is necessary to add the view from the oculus mobile sdk head tracking to the view hierarchy.
 		// This view does not do/render anything but it has to be in the hierarchy. 
 		// For this reason, it will be added of 1 pixel size.
+		// This is definitively not the best way to add the view.
 		mainViewGroup.addView(oculusMobileSDKHeadTracking.getView(), new LinearLayout.LayoutParams(1, 1));
 	}
 	
