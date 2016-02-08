@@ -30,7 +30,16 @@ By default, Samsung devices that are compatible with the Gear VR (Note 4 and Gal
 
   Inside it your will see a button that states `MANAGE STORAGE` and once you press on it a field labeled `VR Service Version` show on screen. As it happens to enable the Android developer mode, you need to tap 7 times repeatedly over this field and you will see how the `Developer mode` is activated. You can enable or disable this mode at anytime from this option.
 
-  ![](markdown/images/GearVRDevMode02.jpg "") | ![](markdown/images/GearVRDevMode03.jpg "")
+  <table>
+  	<tr>
+  		<td>
+  			<img src="markdown/images/GearVRDevMode02.jpg" height="600"/>
+  		</td>
+  		<td>
+  			<img src="markdown/images/GearVRDevMode03.jpg"/ height="600">
+  		</td>
+  	</tr>
+  </table>
 
 2. **Disable the Oculus Home app:** Every time you connect your Samsung Android device to the Samsung Gear VR USB connector, the Oculus Home application is launched. It is not mandatory to deactivate this behaviour as you can easily kill the app once is launched, but when your are developing and testing a Oculus Mobile app, it is preferrable not to have it taking over every time disconnect your device from the USB to the computer and connect it to the headset to test your progress. This is specially important with the Note 4 based first version of the Gear VR as killing the Oculus Home app is trickier than in the Galaxy S6 model. The best (but not free) way to disable the Oculus Home app is to install the [Package Disabler Pro app from GooglePlay](https://play.google.com/store/apps/details?id=com.ospolice.packagedisablerpro&hl=en). Once downloaded and installed if you open the Package Disabler Pro, it will show all the services that are running on your device. The fastest way to find the Oculus Home service is to use the filter text field on the top of the screen inside the Package Disabler Pro. Just type Oculus and it should filter all the apps and how the one that is needed to be disabled. Then simply select the checkbox on the right side of the app name and the Package Disabler Pro will handle it. Any disabled app can be re-enabled anytime by just unselecting the checkbox, so anytime you feel like having the oculus home being launched once you connect your device to the headset, you can have this behaviour back in no time.
 
