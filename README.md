@@ -32,11 +32,11 @@ By default, Samsung devices that are compatible with the Gear VR (Note 4 and Gal
 
   <table>
   	<tr>
-  		<td>
+  		<td style="vertical-align:top;">
   			<img src="markdown/images/GearVRDevMode02.jpg" height="600"/>
   		</td>
-  		<td>
-  			<img src="markdown/images/GearVRDevMode03.jpg"/ height="600">
+  		<td style="vertical-align:top;">
+  			<img src="markdown/images/GearVRDevMode03.jpg"/ height="390">
   		</td>
   	</tr>
   </table>
