@@ -169,7 +169,7 @@ To build and test this project, this is all the information about the system I h
 ## Related Projects
 
 * [OculusMobileSDKHeadTrackingXWalkViewExtension](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension): A Crosswalk extension to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment. 
-* OculusMobileSDKHeadTrackingCordovaPlugin: A Cordova plugin to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment.
+* [OculusMobileSDKHeadTrackingCordovaPlugin](https://github.com/judax/cordova-plugin-oculusmobilesdkheadtracking.git): A Cordova plugin to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment.
 * [OculusMobileSDKHeadTrackingWebVR](https://github.com/judax/OculusMobileSDKHeadTrackingWebVR): A JavaScript file that injects the WebVR API using the underlying Oculus Mobile SDK Head Tracking mechanism exposed to JS through a Crosswalk extension or a Cordova plugin.
 
 ## Other References
