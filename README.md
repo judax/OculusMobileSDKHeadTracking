@@ -1,6 +1,12 @@
 # OculusMobileSDKHeadTracking
 
-The Oculus Mobile SDK allows to access a highly accurate head tracking hardware system available on devices like the Samsung Gear VR by Samsung and Oculus. The purpose of this library is to be able to expose only the head tracking mechanism from the Oculus Mobile SDK to a java API. Any application or library can use this information to develop products that can take advantage of the high accuracy information that is provided by these sensors.
+The Oculus Mobile SDK allows to access a highly accurate head tracking hardware system available on devices like the Samsung Gear VR by Samsung and Oculus. The purpose of this library is to be able to expose only the head tracking mechanism from the Oculus Mobile SDK to a C++ or a java API. Any application or library can use this information to develop products that can take advantage of the high accuracy information that is provided by these sensors.
+
+This project is the base for a bigger goal: provide Oculus Mobile Head Tracking capabilities to web applications. Other projects help achieve this goal, so if you are interested in WebVR, please review the following git repos:
+
+* [OculusMobileSDKHeadTrackingXWalkViewExtension](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension): A Crosswalk extension to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment based on the Crosswalk webview. 
+* [OculusMobileSDKHeadTrackingCordovaPlugin](https://github.com/judax/cordova-plugin-oculusmobilesdkheadtracking.git): A Cordova plugin to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment (under development, not fully functional yet).
+* [OculusMobileSDKHeadTrackingWebVR](https://github.com/judax/OculusMobileSDKHeadTrackingWebVR): A JavaScript file that injects the WebVR API using the underlying Oculus Mobile SDK Head Tracking mechanism exposed to JS through the Crosswalk extension or the Cordova plugin.
 
 ## Folder Structure
 
@@ -16,7 +22,7 @@ The Oculus Mobile SDK allows to access a highly accurate head tracking hardware 
 * This documentation will assume that you have experience on Android development and more specifically on using Eclipse to develop Android projects.
 * This project provides some already built libraries. Of course, you can decide to use other versions of the same libraries or even build them yourself.
 * Although some links and information will be provided, some knowledge on Oculus Mobile app development (specifically on the Samsung Gear VR) might come handy.
-* You will need to have the Android SDK installed along with Eclipse and the ADT plugin for Eclipse. If you want to build the Android native source code too, you will need to have at least the Android NDK version r9b installed.
+* You will need to have the Android SDK installed along with Eclipse and the ADT plugin for Eclipse. If you want to build the Android native source code too, you will need to have at least the Android NDK version r9b or above installed.
 
 ## Setup your Samsung/Oculus Gear VR
 
@@ -33,15 +39,17 @@ By default, Samsung devices that are compatible with the Gear VR (Note 4 and Gal
   <table>
   	<tr>
   		<td style="vertical-align:top;">
-  			<img src="markdown/images/GearVRDevMode02.jpg" height="600"/>
+  			<img src="markdown/images/GearVRDevMode02.jpg"/>
   		</td>
   		<td style="vertical-align:top;">
-  			<img src="markdown/images/GearVRDevMode03.jpg"/ height="390">
+  			<img src="markdown/images/GearVRDevMode03.jpg"/>
   		</td>
   	</tr>
   </table>
 
 2. **Disable the Oculus Home app:** Every time you connect your Samsung Android device to the Samsung Gear VR USB connector, the Oculus Home application is launched. It is not mandatory to deactivate this behaviour as you can easily kill the app once is launched, but when your are developing and testing a Oculus Mobile app, it is preferrable not to have it taking over every time disconnect your device from the USB to the computer and connect it to the headset to test your progress. This is specially important with the Note 4 based first version of the Gear VR as killing the Oculus Home app is trickier than in the Galaxy S6 model. The best (but not free) way to disable the Oculus Home app is to install the [Package Disabler Pro app from GooglePlay](https://play.google.com/store/apps/details?id=com.ospolice.packagedisablerpro&hl=en). Once downloaded and installed if you open the Package Disabler Pro, it will show all the services that are running on your device. The fastest way to find the Oculus Home service is to use the filter text field on the top of the screen inside the Package Disabler Pro. Just type Oculus and it should filter all the apps and how the one that is needed to be disabled. Then simply select the checkbox on the right side of the app name and the Package Disabler Pro will handle it. Any disabled app can be re-enabled anytime by just unselecting the checkbox, so anytime you feel like having the oculus home being launched once you connect your device to the headset, you can have this behaviour back in no time.
+
+**NOTE:** It seems that some developers using the Gear VR are disabling the "Gear VR Service" instead of just the "Oculus Home" app. The Oculus Mobile SDK requires that the "Gear VR Service" is up and running or the app might crash with a strange NumberFormatException error. Please, ensure that you have the Gear VR Service up and working (checking on the Application Manager list for example).
 
 3. **Get the Oculus Signature File (OSIG) for your device:** The Oculus Mobile SDK requires your app to be "signed" in order to be launched. This signing process forbids your create an app and distribute it to any device freely :(. It is also prettry simple: Just create the Oculus Signature ID file (OSIG) for your device and copy it to the assets folder of the device. In order to create the OSIG file you will need your Android device id. Once you know your device id, you can introduce it in the [OSIG generator tool by Oculus](https://developer.oculus.com/osig/).
 
@@ -49,7 +57,7 @@ By default, Samsung devices that are compatible with the Gear VR (Note 4 and Gal
 
 ### Use the `test` project
 
-The easiest way to have a glimpse on how to use the library is to check the `test` project. The project is ready to be executed, so just import it to Eclipse. The only missing piece is that in order to work on a Samsung Device you will need to generate your OSIG file and copy it to the `assets` folder of the `test` project. Check the instruction above.
+The easiest way to have a glimpse on how to use the library is to check the `test` project. The project is ready to be executed, so just import it to Eclipse. The only missing piece is that in order to work on a Samsung Device you will need to generate your OSIG file and copy it to the `assets` folder of the `test` project. Check the [instructions above](https://github.com/judax/OculusMobileSDKHeadTracking#setup-your-samsungoculus-gear-vr).
 
 ### Use the library in your own project
 
@@ -183,9 +191,9 @@ To build and test this project, this is all the information about the system I h
 
 ## Related Projects
 
-* [OculusMobileSDKHeadTrackingXWalkViewExtension](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension): A Crosswalk extension to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment. 
-* [OculusMobileSDKHeadTrackingCordovaPlugin](https://github.com/judax/cordova-plugin-oculusmobilesdkheadtracking.git): A Cordova plugin to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment.
-* [OculusMobileSDKHeadTrackingWebVR](https://github.com/judax/OculusMobileSDKHeadTrackingWebVR): A JavaScript file that injects the WebVR API using the underlying Oculus Mobile SDK Head Tracking mechanism exposed to JS through a Crosswalk extension or a Cordova plugin.
+* [OculusMobileSDKHeadTrackingXWalkViewExtension](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension): A Crosswalk extension to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment based on the Crosswalk webview. 
+* [OculusMobileSDKHeadTrackingCordovaPlugin](https://github.com/judax/cordova-plugin-oculusmobilesdkheadtracking.git): A Cordova plugin to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment (under development, not fully functional yet).
+* [OculusMobileSDKHeadTrackingWebVR](https://github.com/judax/OculusMobileSDKHeadTrackingWebVR): A JavaScript file that injects the WebVR API using the underlying Oculus Mobile SDK Head Tracking mechanism exposed to JS through the Crosswalk extension or the Cordova plugin.
 
 ## Other References
 
@@ -196,3 +204,6 @@ Oculus Mobile SDK website
 * Improve the C++ code to decouple it from the Java code in case someone wants to use it from C++ directly. It might be complicated as, at least for now, an Activity and a surfaceview are needed, but there is room for improvement for sure. This improvement could lead to a better integration with already c++ code on other projects like Chromium.
 * Try to contact Oculus/Samsung to see if there is a better way/SDK to just access the Gear VR gyro driver without having to do so much Java/C++ code (create a surfaceview, a GL context, ...).
 * Add an Android Studio based project solution too and provide the library as an Android AAR.
+* Simplify the whole library:
+  - Do not use a native thread, just simply query for the head tracking values whenever they are requested from the Java side. This is a work in progress at the moment.
+* Expose the proximity sensor functionality
