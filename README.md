@@ -26,7 +26,7 @@ This project is the base for a bigger goal: provide Oculus Mobile Head Tracking 
 
 ## Setup your Samsung/Oculus Gear VR
 
-If you already know how to setup your Samsung Gear VR compatible device to install and execute custom VR apps, you can skip this section.
+If you already know how to setup your Samsung Gear VR compatible device to install and execute custom VR apps, you can skip this section and jump directly to [How to use the library](https://github.com/judax/OculusMobileSDKHeadTracking#how-to-use-the-library).
 
 By default, Samsung devices that are compatible with the Gear VR (Note 4 and Galaxy S6 for now) come with some Oculus/Gear VR services preinstalled. These services make developing and installing custom apps quite difficult so setting up your device to act as a developer is important among other steps. There are seveal tutorials online but the infomation is quite scattered so let's review the most important steps to setup your device and get it ready for custom app installation/execution:
 
