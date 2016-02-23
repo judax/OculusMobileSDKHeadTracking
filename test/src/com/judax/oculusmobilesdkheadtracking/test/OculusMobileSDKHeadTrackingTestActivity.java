@@ -1,9 +1,13 @@
 package com.judax.oculusmobilesdkheadtracking.test;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTracking;
 import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTrackingData;
 import com.judax.oculusmobilesdkheadtracking.OculusMobileSDKHeadTrackingListener;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -15,6 +19,8 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 	private static final String HEAD_TRACKING_TEXT_VIEW_TEXT = "Head Tracking State: ";
 	private OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking = new OculusMobileSDKHeadTracking();
 	private TextView headTrackingTextView = null;
+	private TextView fovTextView = null;
+	private TextView interpupillaryDistanceTextView = null;
 	private TextView timeStampTextView = null;
 	private TextView orientationTextView = null;
 	private TextView linearVelocityTextView = null;
@@ -35,11 +41,13 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 	 */
 	private class HeadTrackingDataTextEditsUpdateRunnable implements Runnable
 	{
+		@SuppressLint("DefaultLocale")
 		private String getString(float x, float y, float z)
 		{
 			return String.format("(%.4f, %.4f, %.4f)", x, y, z);
 		}
 		
+		@SuppressLint("DefaultLocale")
 		private String getString(float x, float y, float z, float w)
 		{
 			return String.format("(%.4f, %.4f, %.4f, %.4f)", x, y, z, w);
@@ -48,8 +56,9 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		@Override
 		public void run()
 		{
-			headTrackingTextView.setText(HEAD_TRACKING_TEXT_VIEW_TEXT + "Updated");
 			OculusMobileSDKHeadTrackingData data = oculusMobileSDKHeadTracking.getData();
+			fovTextView.setText("fov: " + String.format("(%.4f, %.4f)", data.xFOV, data.yFOV));
+			interpupillaryDistanceTextView.setText("interpupillary distance: " + String.format("%.4f", data.interpupillaryDistance));
 			timeStampTextView.setText("timeStamp: " + String.format("%.4f", data.timeStamp));
 			orientationTextView.setText("orientation: " + getString(data.orientationX, data.orientationY, data.orientationZ, data.orientationW));
 			linearVelocityTextView.setText("linearVelocity: " + getString(data.linearVelocityX, data.linearVelocityY, data.linearVelocityZ));
@@ -70,6 +79,8 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		
 		headTrackingTextView = (TextView)findViewById(R.id.headTrackingTextView);
 		headTrackingTextView.setText(HEAD_TRACKING_TEXT_VIEW_TEXT + "Not started yet");
+		fovTextView = (TextView)findViewById(R.id.fovTextView);
+		interpupillaryDistanceTextView = (TextView)findViewById(R.id.interpupillaryDistanceTextView);
 		timeStampTextView = (TextView)findViewById(R.id.timeStampTextView);
 		orientationTextView = (TextView)findViewById(R.id.orientationTextView);
 		linearVelocityTextView = (TextView)findViewById(R.id.linearVelocityTextView);
@@ -89,17 +100,10 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 					public void run()
 					{
 						headTrackingTextView.setText(HEAD_TRACKING_TEXT_VIEW_TEXT + "Started");
-						System.out.println("Started!!!");
 					}
 				});
 			}
 			
-			@Override
-			public void headTrackingUpdated(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, OculusMobileSDKHeadTrackingData data)
-			{
-				runOnUiThread(runnable);
-			}
-
 			@Override
 			public void headTrackingError(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, final String errorMessage)
 			{
@@ -123,6 +127,16 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		// For this reason, it will be added of 1 pixel size.
 		// This is definitively not the best way to add the view.
 		mainViewGroup.addView(oculusMobileSDKHeadTracking.getView(), new LinearLayout.LayoutParams(1, 1));
+		
+		// A task to update the UI information at 60 FPS
+    Timer timer = new Timer();
+    TimerTask doAsynchronousTask = new TimerTask() {       
+        @Override
+        public void run() {
+  				runOnUiThread(runnable);
+        }
+    };
+    timer.schedule(doAsynchronousTask, 0, 16);
 	}
 	
 	@Override
