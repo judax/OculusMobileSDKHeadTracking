@@ -50,7 +50,7 @@ public class OculusMobileSDKHeadTracking
 		surfaceView.getHolder().addCallback(surfaceHolderCallback);
 
 		// Call the native side so it is initialized and so it returns the pointer to the main C++ object
-		nativeObjectPtr = nativeStart(activity, this);
+		nativeObjectPtr = nativeStart(activity, this, data);
 		if (nativeObjectPtr == 0)
 		{
 			throw new IllegalStateException("The native corresponding object could not be instantiated to handle the Oculus Mobile SDK Head Tracking.");
@@ -120,6 +120,7 @@ public class OculusMobileSDKHeadTracking
 	 */
 	public OculusMobileSDKHeadTrackingData getData()
 	{
+		nativeGetData(nativeObjectPtr);
 		return data;
 	}
 
@@ -246,51 +247,12 @@ public class OculusMobileSDKHeadTracking
 		}
 	}
 	
-	/**
-	 * This method will be called from the native side every time there is a head tracking information update.
-	 */
-	private void headTrackingUpdatedFromNative(
-					double timeStamp,
-					float orientationX, float orientationY, float orientationZ, float orientationW,
-					float linearVelocityX, float linearVelocityY, float linearVelocityZ,
-					float angularVelocityX, float angularVelocityY, float angularVelocityZ,
-					float linearAccelerationX, float linearAccelerationY, float linearAccelerationZ,
-					float angularAccelerationX, float angularAccelerationY, float angularAccelerationZ)
-	{
-		// Store the information
-		synchronized(this)
-		{
-			data.timeStamp = timeStamp;
-			data.orientationX = orientationX;
-			data.orientationY = orientationY;
-			data.orientationZ = orientationZ;
-			data.orientationW = orientationW;
-			data.angularVelocityX = angularVelocityX;
-			data.angularVelocityY = angularVelocityY;
-			data.angularVelocityZ = angularVelocityZ;
-			data.linearVelocityX = linearVelocityX;
-			data.linearVelocityY = linearVelocityY;
-			data.linearVelocityZ = linearVelocityZ;
-			data.linearAccelerationX = linearAccelerationX;
-			data.linearAccelerationY = linearAccelerationY;
-			data.linearAccelerationZ = linearAccelerationZ;
-			data.angularAccelerationX = angularAccelerationX;
-			data.angularAccelerationY = angularAccelerationY;
-			data.angularAccelerationZ = angularAccelerationZ;
-		}
-		// Notify all the registered listeners
-		OculusMobileSDKHeadTrackingListener[] oculusMobileSDKHeadTrackingListenersArray = createOculusMobileSDKHeadTrackingListenersArray();
-		for (OculusMobileSDKHeadTrackingListener listener: oculusMobileSDKHeadTrackingListenersArray)
-		{
-			listener.headTrackingUpdated(this, data);
-		}
-	}
-	
-	private native long nativeStart(Activity activity, OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking);
+	private native long nativeStart(Activity activity, OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, OculusMobileSDKHeadTrackingData data);
 	private native long nativeResume(long nativeObjectPtr);
 	private native long nativePause(long nativeObjectPtr);
 	private native void nativeStop(long nativeObjectPtr);
 	private native void nativeSurfaceCreated(long nativeObjectPtr, Surface surface);
 	private native void nativeSurfaceChanged(long nativeObjectPtr, Surface surface);
 	private native void nativeSurfaceDestroyed(long nativeObjectPtr);
+	private native void nativeGetData(long nativeObjectPtr);
 }

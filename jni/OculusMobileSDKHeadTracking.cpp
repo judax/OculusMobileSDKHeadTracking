@@ -23,153 +23,6 @@
 #define LOG_MESSAGE(...) __android_log_print( ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__ )
 
 // ================================================================================================
-// Some of the Oculus Mobile SDK Math helpers
-// ================================================================================================
-
-// Definitions of axes for coordinate and rotation conversions.
-enum Axis
-{
-    Axis_X = 0, Axis_Y = 1, Axis_Z = 2
-};
-
-// RotateDirection describes the rotation direction around an axis, interpreted as follows:
-//  CW  - Clockwise while looking "down" from positive axis towards the origin.
-//  CCW - Counter-clockwise while looking from the positive axis towards the origin,
-//        which is in the negative axis direction.
-//  CCW is the default for the RHS coordinate system. Oculus standard RHS coordinate
-//  system defines Y up, X right, and Z back (pointing out from the screen). In this
-//  system Rotate_CCW around Z will specifies counter-clockwise rotation in XY plane.
-enum RotateDirection
-{
-    Rotate_CCW = 1,
-    Rotate_CW  = -1
-};
-
-// Constants for right handed and left handed coordinate systems
-enum HandedSystem
-{
-    Handed_R = 1, Handed_L = -1
-};
-
-//------------------------------------------------------------------------------------//
-// ***** Math
-//
-// Math class contains constants and functions. This class is a template specialized
-// per type, with Math<float> and Math<double> being distinct.
-template<class Type>
-class Math
-{
-public:
-    // By default, support explicit conversion to float. This allows Vector2<int> to
-    // compile, for example.
-    typedef float OtherFloatType;
-};
-
-// Single-precision Math constants class.
-template<>
-class Math<float>
-{
-public:
-    static const float Pi;
-    static const float TwoPi;
-    static const float PiOver2;
-    static const float PiOver4;
-    static const float E;
-    
-    static const float MaxValue;			// Largest positive float Value
-    static const float MinPositiveValue;	// Smallest possible positive value
-    
-    static const float RadToDegreeFactor;
-    static const float DegreeToRadFactor;
-    
-    static const float Tolerance;			// 0.00001f;
-    static const float SingularityRadius;	// 0.0000001f for Gimbal lock numerical problems
-    
-    static const float SmallestNonDenormal;	// ( numerator <= 4 ) / ( denominator > SmallestNonDenormal ) < infinite
-    static const float HugeNumber;			// HugeNumber * HugeNumber < infinite
-    
-    // Used to support direct conversions in template classes.
-    typedef double OtherFloatType;
-};
-
-const float Math<float>::Pi = 3.14159265358979323846;
-const float Math<float>::PiOver2 = Math<float>::Pi / 2.0;
-const float Math<float>::SingularityRadius = 0.0000001f;
-
-typedef Math<float>  Mathf;
-
-template<class T>
-class Quat
-{
-public:
-    // w + Xi + Yj + Zk
-    T x, y, z, w;
-    
-    Quat() : x(0), y(0), z(0), w(1) { }
-    Quat(T x_, T y_, T z_, T w_) : x(x_), y(y_), z(z_), w(w_) { }
-    
-    // GetEulerAngles extracts Euler angles from the quaternion, in the specified order of
-    // axis rotations and the specified coordinate system. Right-handed coordinate system
-    // is the default, with CCW rotations while looking in the negative axis direction.
-    // Here a,b,c, are the Yaw/Pitch/Roll angles to be returned.
-    // rotation a around axis A1
-    // is followed by rotation b around axis A2
-    // is followed by rotation c around axis A3
-    // rotations are CCW or CW (D) in LH or RH coordinate system (S)
-    template <Axis A1, Axis A2, Axis A3, RotateDirection D, HandedSystem S>
-    void GetEulerAngles(T *a, T *b, T *c) const
-    {
-//        OVR_COMPILER_ASSERT((A1 != A2) && (A2 != A3) && (A1 != A3));
-        
-        T Q[3] = { x, y, z };  //Quaternion components x,y,z
-        
-        T ww  = w*w;
-        T Q11 = Q[A1]*Q[A1];
-        T Q22 = Q[A2]*Q[A2];
-        T Q33 = Q[A3]*Q[A3];
-        
-        T psign = T(-1);
-        // Determine whether even permutation
-        if (((A1 + 1) % 3 == A2) && ((A2 + 1) % 3 == A3))
-            psign = T(1);
-        
-        T s2 = psign * T(2) * (psign*w*Q[A2] + Q[A1]*Q[A3]);
-        
-        if (s2 < T(-1) + Math<T>::SingularityRadius)
-        { // South pole singularity
-            *a = T(0);
-            *b = -S*D*Math<T>::PiOver2;
-            *c = S*D*atan2(T(2)*(psign*Q[A1]*Q[A2] + w*Q[A3]),
-                           ww + Q22 - Q11 - Q33 );
-        }
-        else if (s2 > T(1) - Math<T>::SingularityRadius)
-        {  // North pole singularity
-            *a = T(0);
-            *b = S*D*Math<T>::PiOver2;
-            *c = S*D*atan2(T(2)*(psign*Q[A1]*Q[A2] + w*Q[A3]),
-                           ww + Q22 - Q11 - Q33);
-        }
-        else
-        {
-            *a = -S*D*atan2(T(-2)*(w*Q[A1] - psign*Q[A2]*Q[A3]),
-                            ww + Q33 - Q11 - Q22);
-            *b = S*D*asin(s2);
-            *c = S*D*atan2(T(2)*(w*Q[A3] - psign*Q[A1]*Q[A2]),
-                           ww + Q11 - Q22 - Q33);
-        }
-        return;
-    }
-    
-    template <Axis A1, Axis A2, Axis A3, RotateDirection D>
-    void GetEulerAngles(T *a, T *b, T *c) const
-    { GetEulerAngles<A1, A2, A3, D, Handed_R>(a, b, c); }
-    
-    template <Axis A1, Axis A2, Axis A3>
-    void GetEulerAngles(T *a, T *b, T *c) const
-    { GetEulerAngles<A1, A2, A3, Rotate_CCW, Handed_R>(a, b, c); }
-};
-
-// ================================================================================================
 // Oculus Mobile SDK ovrMessageQueue library
 // ================================================================================================
 typedef enum
@@ -655,19 +508,35 @@ private:
         MESSAGE_PAUSE,
         MESSAGE_STOP,
         MESSAGE_SURFACE_CREATED,
-        MESSAGE_SURFACE_DESTROYED,
-        MESSAGE_KEY_EVENT,
-        MESSAGE_TOUCH_EVENT
+        MESSAGE_SURFACE_DESTROYED
     };
     
     pthread_t thread;
     JavaVM* javaVM;
     jobject activityJObject;
     jobject oculusMobileSDKHeadTrackingJObject;
+    jobject dataJObject;
     jclass oculusMobileSDKHeadTrackingJClass;
+    jclass dataJClass;
     jmethodID headTrackingStartedMethodID;
-    jmethodID headTrackingUpdatedMethodID;
     jmethodID headTrackingErrorMethodID;
+    jfieldID dataTimeStampFieldID;
+    jfieldID dataOrientationXFieldID;
+    jfieldID dataOrientationYFieldID;
+    jfieldID dataOrientationZFieldID;
+    jfieldID dataOrientationWFieldID;
+    jfieldID dataLinearVelocityXFieldID;
+    jfieldID dataLinearVelocityYFieldID;
+    jfieldID dataLinearVelocityZFieldID;
+    jfieldID dataAngularVelocityXFieldID;
+    jfieldID dataAngularVelocityYFieldID;
+    jfieldID dataAngularVelocityZFieldID;
+    jfieldID dataLinearAccelerationXFieldID;
+    jfieldID dataLinearAccelerationYFieldID;
+    jfieldID dataLinearAccelerationZFieldID;
+    jfieldID dataAngularAccelerationXFieldID;
+    jfieldID dataAngularAccelerationYFieldID;
+    jfieldID dataAngularAccelerationZFieldID;
     ovrMobile* ovr;
     long long frameIndex;
     ANativeWindow* nativeWindow;
@@ -715,8 +584,6 @@ private:
                     float eyeX = vrapi_GetSystemPropertyFloat(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_FOV_DEGREES_X);
                     float eyeY = vrapi_GetSystemPropertyFloat(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_FOV_DEGREES_Y);
                     float interpupillaryDistance = headModelParms.InterpupillaryDistance;
-                    
-                    LOG_MESSAGE("Started!!!!! eyeX = %f, eyeY = %f, interpupillaryDistance = %f", eyeX, eyeY, interpupillaryDistance);
                     
                     java.Env->CallVoidMethod(oculusMobileSDKHeadTrackingJObject, headTrackingStartedMethodID, eyeX, eyeY, interpupillaryDistance);
                 }
@@ -781,7 +648,8 @@ private:
             for ( ; ; )
             {
                 ovrMessage message;
-                const bool waitForMessages = (ovr == NULL && destroyed == false);
+                // Force to always idle the thread until a message is received
+                const bool waitForMessages = true; // (ovr == NULL && destroyed == false);
                 if (!ovrMessageQueue_GetNextMessage(&messageQueue, &message, waitForMessages))
                 {
                     break;
@@ -806,91 +674,10 @@ private:
                         break;
                     case MESSAGE_SURFACE_DESTROYED:
                         break;
-//                    case MESSAGE_KEY_EVENT:
-//                        ovrApp_HandleKeyEvent( &appState, ovrMessage_GetIntegerParm( &message, 0 ), ovrMessage_GetIntegerParm( &message, 1 ) );
-//                        break;
-//                    case MESSAGE_TOUCH_EVENT:
-//                        ovrApp_HandleTouchEvent( &appState, ovrMessage_GetIntegerParm( &message, 0 ), ovrMessage_GetFloatParm( &message, 1 ), ovrMessage_GetFloatParm( &message, 2 ) );
-//                        break;
                 }
                 
                 handleVRModeChanges();
             }
-            
-//            LOG_MESSAGE("OculusMobileSDKHeadTracking thread still running...");
-            
-            frameIndex++;
-
-            const double predictedDisplayTime = vrapi_GetPredictedDisplayTime(ovr, frameIndex);
-            const ovrTracking baseTracking = vrapi_GetPredictedTracking(ovr, predictedDisplayTime);
-            
-            const ovrTracking tracking = vrapi_ApplyHeadModel(&headModelParms, &baseTracking);
-            
-//            // Position and orientation together.
-//            typedef struct ovrPosef_
-//            {
-//                ovrQuatf	Orientation;
-//                ovrVector3f	Position;
-//            } ovrPosef;
-//            typedef struct ovrRigidBodyPosef_
-//            {
-//                ovrPosef	Pose;
-//                ovrVector3f	AngularVelocity;
-//                ovrVector3f	LinearVelocity;
-//                ovrVector3f	AngularAcceleration;
-//                ovrVector3f	LinearAcceleration;
-//                double		TimeInSeconds;			// Absolute time of this pose.
-//                double		PredictionInSeconds;	// Seconds this pose was predicted ahead.
-//            } ovrRigidBodyPosef;
-//            
-//            // Bit flags describing the current status of sensor tracking.
-//            typedef enum
-//            {
-//                VRAPI_TRACKING_STATUS_ORIENTATION_TRACKED	= 0x0001,	// Orientation is currently tracked.
-//                VRAPI_TRACKING_STATUS_POSITION_TRACKED		= 0x0002,	// Position is currently tracked.
-//                VRAPI_TRACKING_STATUS_HMD_CONNECTED			= 0x0080	// HMD is available & connected.
-//            } ovrTrackingStatus;
-//            
-//            // Tracking state at a given absolute time.
-//            typedef struct ovrTracking_
-//            {
-//                // Sensor status described by ovrTrackingStatus flags.
-//                unsigned int		Status;
-//                // Predicted head configuration at the requested absolute time.
-//                // The pose describes the head orientation and center eye position.
-//                ovrRigidBodyPosef	HeadPose;
-//            } ovrTracking;
-            
-            // My attempt to try to convert from the head orientation quaternion to deviceorientation euler angles.
-//            Quat<float> quat(tracking.HeadPose.Pose.Orientation.x, tracking.HeadPose.Pose.Orientation.y, tracking.HeadPose.Pose.Orientation.z, tracking.HeadPose.Pose.Orientation.w);
-//            float yaw, eyePitch, eyeRoll;
-//            quat.GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&yaw, &eyePitch, &eyeRoll);
-            
-            java.Env->CallVoidMethod(oculusMobileSDKHeadTrackingJObject, headTrackingUpdatedMethodID,
-                                     tracking.HeadPose.TimeInSeconds,
-                                     tracking.HeadPose.Pose.Orientation.x,
-                                     tracking.HeadPose.Pose.Orientation.y,
-                                     tracking.HeadPose.Pose.Orientation.z,
-                                     tracking.HeadPose.Pose.Orientation.w,
-                                     tracking.HeadPose.LinearVelocity.x,
-                                     tracking.HeadPose.LinearVelocity.y,
-                                     tracking.HeadPose.LinearVelocity.z,
-                                     tracking.HeadPose.LinearAcceleration.x,
-                                     tracking.HeadPose.LinearAcceleration.y,
-                                     tracking.HeadPose.LinearAcceleration.z,
-                                     tracking.HeadPose.AngularVelocity.x,
-                                     tracking.HeadPose.AngularVelocity.y,
-                                     tracking.HeadPose.AngularVelocity.z,
-                                     tracking.HeadPose.AngularAcceleration.x,
-                                     tracking.HeadPose.AngularAcceleration.y,
-                                     tracking.HeadPose.AngularAcceleration.z
-                                     );
-            
-            // Yield or wait
-//            sched_yield(); // Does not have to really "free" the CPU from this thread
-            usleep(16000); // 60 FPS :(
-//            usleep(5000000);
-            
         }
         
         if (ovr != NULL)
@@ -925,16 +712,35 @@ public:
         ovrEgl_Clear(&egl);
     }
 
-    void init(JNIEnv* jniEnv, jobject activityJObject, jobject oculusMobileSDKHeadTrackingJObject)
+    void start(JNIEnv* jniEnv, jobject activityJObject, jobject oculusMobileSDKHeadTrackingJObject, jobject dataJObject)
     {
         jniEnv->GetJavaVM(&javaVM);
         this->activityJObject = jniEnv->NewGlobalRef(activityJObject);
         this->oculusMobileSDKHeadTrackingJObject = jniEnv->NewGlobalRef(oculusMobileSDKHeadTrackingJObject);
-        // Cache the jni method that will be continously called
+        this->dataJObject = jniEnv->NewGlobalRef(dataJObject);
+        // Cache some JNI methods and classes
         oculusMobileSDKHeadTrackingJClass = jniEnv->GetObjectClass(oculusMobileSDKHeadTrackingJObject);
         headTrackingStartedMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "headTrackingStartedFromNative", "(FFF)V");
-        headTrackingUpdatedMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "headTrackingUpdatedFromNative", "(DFFFFFFFFFFFFFFFF)V");
         headTrackingErrorMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "headTrackingErrorFromNative", "(Ljava/lang/String;)V");
+        // Cache OculudMobileSDKHeadTrackingData properties
+        dataJClass = jniEnv->GetObjectClass(dataJObject);
+        dataTimeStampFieldID = jniEnv->GetFieldID(dataJClass, "timeStamp", "D");
+        dataOrientationXFieldID = jniEnv->GetFieldID(dataJClass, "orientationX", "F");
+        dataOrientationYFieldID = jniEnv->GetFieldID(dataJClass, "orientationY", "F");
+        dataOrientationZFieldID = jniEnv->GetFieldID(dataJClass, "orientationZ", "F");
+        dataOrientationWFieldID = jniEnv->GetFieldID(dataJClass, "orientationW", "F");
+        dataLinearVelocityXFieldID = jniEnv->GetFieldID(dataJClass, "linearVelocityX", "F");
+        dataLinearVelocityYFieldID = jniEnv->GetFieldID(dataJClass, "linearVelocityY", "F");
+        dataLinearVelocityZFieldID = jniEnv->GetFieldID(dataJClass, "linearVelocityZ", "F");
+        dataAngularVelocityXFieldID = jniEnv->GetFieldID(dataJClass, "angularVelocityX", "F");
+        dataAngularVelocityYFieldID = jniEnv->GetFieldID(dataJClass, "angularVelocityY", "F");
+        dataAngularVelocityZFieldID = jniEnv->GetFieldID(dataJClass, "angularVelocityZ", "F");
+        dataLinearAccelerationXFieldID = jniEnv->GetFieldID(dataJClass, "linearAccelerationX", "F");
+        dataLinearAccelerationYFieldID = jniEnv->GetFieldID(dataJClass, "linearAccelerationY", "F");
+        dataLinearAccelerationZFieldID = jniEnv->GetFieldID(dataJClass, "linearAccelerationZ", "F");
+        dataAngularAccelerationXFieldID = jniEnv->GetFieldID(dataJClass, "angularAccelerationX", "F");
+        dataAngularAccelerationYFieldID = jniEnv->GetFieldID(dataJClass, "angularAccelerationY", "F");
+        dataAngularAccelerationZFieldID = jniEnv->GetFieldID(dataJClass, "angularAccelerationZ", "F");
         
         ovrMessageQueue_Create(&messageQueue);
         
@@ -968,7 +774,7 @@ public:
         ovrMessageQueue_PostMessage( &messageQueue, &message );
     }
     
-    void end(JNIEnv* jniEnv)
+    void stop(JNIEnv* jniEnv)
     {
         // Post MESSAGE_ON_DESTROY
         ovrMessage message;
@@ -1012,15 +818,81 @@ public:
             ANativeWindow_release(nativeWindow);
         }
     }
+    
+    void getData(JNIEnv* jniEnv)
+    {
+        frameIndex++;
+        const ovrHeadModelParms headModelParms = vrapi_DefaultHeadModelParms();
+        const double predictedDisplayTime = vrapi_GetPredictedDisplayTime(ovr, frameIndex);
+        const ovrTracking baseTracking = vrapi_GetPredictedTracking(ovr, predictedDisplayTime);
+        const ovrTracking tracking = vrapi_ApplyHeadModel(&headModelParms, &baseTracking);
+        
+        // ==============================================
+        // THIS CODE IS JUST FOR REFERENCE PURPOSES! BEGIN
+        //            // Position and orientation together.
+        //            typedef struct ovrPosef_
+        //            {
+        //                ovrQuatf	Orientation;
+        //                ovrVector3f	Position;
+        //            } ovrPosef;
+        //            typedef struct ovrRigidBodyPosef_
+        //            {
+        //                ovrPosef	Pose;
+        //                ovrVector3f	AngularVelocity;
+        //                ovrVector3f	LinearVelocity;
+        //                ovrVector3f	AngularAcceleration;
+        //                ovrVector3f	LinearAcceleration;
+        //                double		TimeInSeconds;			// Absolute time of this pose.
+        //                double		PredictionInSeconds;	// Seconds this pose was predicted ahead.
+        //            } ovrRigidBodyPosef;
+        //
+        //            // Bit flags describing the current status of sensor tracking.
+        //            typedef enum
+        //            {
+        //                VRAPI_TRACKING_STATUS_ORIENTATION_TRACKED	= 0x0001,	// Orientation is currently tracked.
+        //                VRAPI_TRACKING_STATUS_POSITION_TRACKED		= 0x0002,	// Position is currently tracked.
+        //                VRAPI_TRACKING_STATUS_HMD_CONNECTED			= 0x0080	// HMD is available & connected.
+        //            } ovrTrackingStatus;
+        //
+        //            // Tracking state at a given absolute time.
+        //            typedef struct ovrTracking_
+        //            {
+        //                // Sensor status described by ovrTrackingStatus flags.
+        //                unsigned int		Status;
+        //                // Predicted head configuration at the requested absolute time.
+        //                // The pose describes the head orientation and center eye position.
+        //                ovrRigidBodyPosef	HeadPose;
+        //            } ovrTracking;
+        // THIS CODE IS JUST FOR REFERENCE PURPOSES! END
+        // ==============================================
+        
+        jniEnv->SetDoubleField(dataJObject, dataTimeStampFieldID, tracking.HeadPose.TimeInSeconds);
+        jniEnv->SetFloatField(dataJObject, dataOrientationXFieldID, tracking.HeadPose.Pose.Orientation.x);
+        jniEnv->SetFloatField(dataJObject, dataOrientationYFieldID, tracking.HeadPose.Pose.Orientation.y);
+        jniEnv->SetFloatField(dataJObject, dataOrientationZFieldID, tracking.HeadPose.Pose.Orientation.z);
+        jniEnv->SetFloatField(dataJObject, dataOrientationWFieldID, tracking.HeadPose.Pose.Orientation.w);
+        jniEnv->SetFloatField(dataJObject, dataLinearVelocityXFieldID, tracking.HeadPose.LinearVelocity.x);
+        jniEnv->SetFloatField(dataJObject, dataLinearVelocityYFieldID, tracking.HeadPose.LinearVelocity.y);
+        jniEnv->SetFloatField(dataJObject, dataLinearVelocityZFieldID, tracking.HeadPose.LinearVelocity.z);
+        jniEnv->SetFloatField(dataJObject, dataLinearAccelerationXFieldID, tracking.HeadPose.LinearAcceleration.x);
+        jniEnv->SetFloatField(dataJObject, dataLinearAccelerationYFieldID, tracking.HeadPose.LinearAcceleration.y);
+        jniEnv->SetFloatField(dataJObject, dataLinearAccelerationZFieldID, tracking.HeadPose.LinearAcceleration.z);
+        jniEnv->SetFloatField(dataJObject, dataAngularVelocityXFieldID, tracking.HeadPose.AngularVelocity.x);
+        jniEnv->SetFloatField(dataJObject, dataAngularVelocityYFieldID, tracking.HeadPose.AngularVelocity.y);
+        jniEnv->SetFloatField(dataJObject, dataAngularVelocityZFieldID, tracking.HeadPose.AngularVelocity.z);
+        jniEnv->SetFloatField(dataJObject, dataAngularAccelerationXFieldID, tracking.HeadPose.AngularAcceleration.x);
+        jniEnv->SetFloatField(dataJObject, dataAngularAccelerationYFieldID, tracking.HeadPose.AngularAcceleration.y);
+        jniEnv->SetFloatField(dataJObject, dataAngularAccelerationZFieldID, tracking.HeadPose.AngularAcceleration.z);
+    }
 };
 
 extern "C"
 {
     // Activity life cycle
-    JNIEXPORT jlong JNICALL Java_com_judax_oculusmobilesdkheadtracking_OculusMobileSDKHeadTracking_nativeStart(JNIEnv* jniEnv, jobject obj, jobject activityJObject, jobject oculusMobileSDKHeadTrackingJObject)
+    JNIEXPORT jlong JNICALL Java_com_judax_oculusmobilesdkheadtracking_OculusMobileSDKHeadTracking_nativeStart(JNIEnv* jniEnv, jobject obj, jobject activityJObject, jobject oculusMobileSDKHeadTrackingJObject, jobject dataJObject)
     {
         OculusMobileSDKHeadTracking* oculusMobileSDKHeadTracking = new OculusMobileSDKHeadTracking();
-        oculusMobileSDKHeadTracking->init(jniEnv, activityJObject, oculusMobileSDKHeadTrackingJObject);
+        oculusMobileSDKHeadTracking->start(jniEnv, activityJObject, oculusMobileSDKHeadTrackingJObject, dataJObject);
         return (jlong)((size_t)oculusMobileSDKHeadTracking);
         
         return 0;
@@ -1043,7 +915,7 @@ extern "C"
     JNIEXPORT void JNICALL Java_com_judax_oculusmobilesdkheadtracking_OculusMobileSDKHeadTracking_nativeStop(JNIEnv* jniEnv, jobject obj, jlong objectPtr)
     {
         OculusMobileSDKHeadTracking* oculusMobileSDKHeadTracking = (OculusMobileSDKHeadTracking*)((size_t)objectPtr);
-        oculusMobileSDKHeadTracking->end(jniEnv);
+        oculusMobileSDKHeadTracking->stop(jniEnv);
         delete oculusMobileSDKHeadTracking;
         oculusMobileSDKHeadTracking = 0;
     }
@@ -1088,6 +960,13 @@ extern "C"
         OculusMobileSDKHeadTracking* oculusMobileSDKHeadTracking = (OculusMobileSDKHeadTracking*)((size_t)objectPtr);
         
         oculusMobileSDKHeadTracking->setNativeWindow(NULL);
+    }
+    
+    JNIEXPORT void JNICALL Java_com_judax_oculusmobilesdkheadtracking_OculusMobileSDKHeadTracking_nativeGetData(JNIEnv* jniEnv, jobject obj, jlong objectPtr)
+    {
+        OculusMobileSDKHeadTracking* oculusMobileSDKHeadTracking = (OculusMobileSDKHeadTracking*)((size_t)objectPtr);
+        
+        oculusMobileSDKHeadTracking->getData(jniEnv);
     }
     
 }
