@@ -43,7 +43,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = BDE547BA1C5D178200DE09AD /* Build configuration list for PBXNativeTarget "OculusMobileSDKHeadTracking" */;
 			buildPhases = (
-				BDE547C11C5D1A4400DE09AD /* Run Script NDKBuild.sh */,
+				BDE547C11C5D1A4400DE09AD /* Run Script BuildAndCopyToTest.sh */,
 			);
 			buildRules = (
 			);
@@ -86,14 +86,14 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		BDE547C11C5D1A4400DE09AD /* Run Script NDKBuild.sh */ = {
+		BDE547C11C5D1A4400DE09AD /* Run Script BuildAndCopyToTest.sh */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Run Script NDKBuild.sh";
+			name = "Run Script BuildAndCopyToTest.sh";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
