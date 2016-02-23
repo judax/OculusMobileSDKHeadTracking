@@ -71,7 +71,7 @@ You might as well want to create your own project that uses the libraries. The f
   **NOTE:** The `libvrapi.so` file is directly provided along with the `liboculusmobilesdkheadtracking.so` file. A copy of the same version of the file is also included in the `3rdparty/ovr_sdk_mobile_1.0.0.0/armeabi-v7a` folder in case you need it.
 3. Use the library inside your code.
   1. Create an `OculusMobileSDKHeadTracking` instance.
-  2. Implement the `OculusMobileSDKHeadTrackingListener` interface. This step is not mandatory but listening to the events can come handy to know when the tracking has started, get notifications on head tracking updates or be notified about possible errors. You can still acquire the head tracking values by calling the `getData` method.
+  2. Implement the `OculusMobileSDKHeadTrackingListener` interface. This step is not mandatory but listening to the events can come handy to know when the tracking has started or to be notified about possible errors. You can acquire the head tracking values by calling the `getData` method.
   3. Call the `start` method of the instance passing a reference to the Activity that is using the library. This call should most likely be made from the `onCreate` of the activity that has instanitated the `OculusMobileSDKHeadTracking` class.
   4. Call the `getView` method of the instance to get a view that needs to be added somehow in the view hierarchy of your app.
   5. Call the `resume`, `pause` and `stop` methods of the instance in the corresponding `onResume`, `onPause` and `onDestroy` of the Activity.
@@ -111,11 +111,6 @@ You might as well want to create your own project that uses the libraries. The f
   			{
   			}
   			
-  			@Override
-  			public void headTrackingUpdated(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, OculusMobileSDKHeadTrackingData data)
-  			{
-  			}
-  
   			@Override
   			public void headTrackingError(OculusMobileSDKHeadTracking oculusMobileSDKHeadTracking, final String errorMessage)
   			{
