@@ -30,7 +30,7 @@ If you already know how to setup your Samsung Gear VR compatible device to insta
 
 By default, Samsung devices that are compatible with the Gear VR (Note 4 and Galaxy S6 for now) come with some Oculus/Gear VR services preinstalled. These services make developing and installing custom apps quite difficult so setting up your device to act as a developer is important among other steps. There are seveal tutorials online but the infomation is quite scattered so let's review the most important steps to setup your device and get it ready for custom app installation/execution:
 
-1. **Become a Gear VR developer:** Similarly to what happens when [activating the developer mode on Android](http://developer.android.com/tools/device.html), you can activate a developer mode for the Gear VR. In order to do so, on your Samsung Android device, go to `Settings->Applications->Application manager` and look for the `Gear VR Service`. 
+1. **Activate Gear VR developer mode:** Similarly to what happens when [activating the developer mode on Android](http://developer.android.com/tools/device.html), you can activate a developer mode for the Gear VR. In order to do so, on your Samsung Android device, go to `Settings->Applications->Application manager` and look for the `Gear VR Service`. 
 
   ![](markdown/images/GearVRDevMode01.jpg "")
 
