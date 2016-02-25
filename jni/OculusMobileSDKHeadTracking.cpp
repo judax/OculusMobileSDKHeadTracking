@@ -648,14 +648,13 @@ private:
             for ( ; ; )
             {
                 ovrMessage message;
-                // Force to always idle the thread until a message is received
-                const bool waitForMessages = true; // (ovr == NULL && destroyed == false);
+                const bool waitForMessages = !destroyed;
                 if (!ovrMessageQueue_GetNextMessage(&messageQueue, &message, waitForMessages))
                 {
                     break;
                 }
                 
-                LOG_MESSAGE("message.Id = %d", message.Id);
+                LOG_MESSAGE("Message received. message.Id = %d", message.Id);
                 
                 switch (message.Id)
                 {
@@ -715,13 +714,16 @@ public:
     void start(JNIEnv* jniEnv, jobject activityJObject, jobject oculusMobileSDKHeadTrackingJObject, jobject dataJObject)
     {
         jniEnv->GetJavaVM(&javaVM);
+        // Keep some references alive
         this->activityJObject = jniEnv->NewGlobalRef(activityJObject);
         this->oculusMobileSDKHeadTrackingJObject = jniEnv->NewGlobalRef(oculusMobileSDKHeadTrackingJObject);
         this->dataJObject = jniEnv->NewGlobalRef(dataJObject);
+        
         // Cache some JNI methods and classes
         oculusMobileSDKHeadTrackingJClass = jniEnv->GetObjectClass(oculusMobileSDKHeadTrackingJObject);
         headTrackingStartedMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "headTrackingStartedFromNative", "(FFF)V");
         headTrackingErrorMethodID = jniEnv->GetMethodID(oculusMobileSDKHeadTrackingJClass, "headTrackingErrorFromNative", "(Ljava/lang/String;)V");
+        
         // Cache OculudMobileSDKHeadTrackingData properties
         dataJClass = jniEnv->GetObjectClass(dataJObject);
         dataTimeStampFieldID = jniEnv->GetFieldID(dataJClass, "timeStamp", "D");
@@ -751,7 +753,7 @@ public:
             LOG_ERROR("pthread_create returned %i", createErr);
         }
         
-        // Post MESSAGE_ON_CREATE
+        // Post MESSAGE_START
         ovrMessageQueue_Enable(&messageQueue, true);
         ovrMessage message;
         ovrMessage_Init(&message, MESSAGE_START, MQ_WAIT_PROCESSED);
@@ -760,7 +762,7 @@ public:
     
     void resume()
     {
-        // Post MESSAGE_ON_RESUME
+        // Post MESSAGE_RESUME
         ovrMessage message;
         ovrMessage_Init(&message, MESSAGE_RESUME, MQ_WAIT_PROCESSED);
         ovrMessageQueue_PostMessage(&messageQueue, &message);
@@ -768,7 +770,7 @@ public:
     
     void pause()
     {
-        // Post MESSAGE_ON_PAUSE
+        // Post MESSAGE_PAUSE
         ovrMessage message;
         ovrMessage_Init( &message, MESSAGE_PAUSE, MQ_WAIT_PROCESSED );
         ovrMessageQueue_PostMessage( &messageQueue, &message );
@@ -776,7 +778,7 @@ public:
     
     void stop(JNIEnv* jniEnv)
     {
-        // Post MESSAGE_ON_DESTROY
+        // Post MESSAGE_STOP
         ovrMessage message;
         ovrMessage_Init(&message, MESSAGE_STOP, MQ_WAIT_PROCESSED);
         ovrMessageQueue_PostMessage(&messageQueue, &message);
@@ -784,8 +786,12 @@ public:
         
         // Wait for the thread and free resources
         pthread_join(thread, NULL);
+        
+        // Free some references
         jniEnv->DeleteGlobalRef(activityJObject);
         jniEnv->DeleteGlobalRef(oculusMobileSDKHeadTrackingJObject);
+        jniEnv->DeleteGlobalRef(dataJObject);
+        
         ovrMessageQueue_Destroy(&messageQueue);
     }
     
