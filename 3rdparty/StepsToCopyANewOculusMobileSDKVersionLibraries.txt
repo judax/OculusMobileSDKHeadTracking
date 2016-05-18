@@ -1,0 +1,15 @@
+Steps to copy a new Oculus Mobile SDK libraries
+
+1.- Create a new OpenGLLoader .a library. simply go to the 1stParty folder on the Oculud Mobile SDK and to the OpenGLLoader folder inside it. Find where the jni folder is (project/Android) and execute ndk-build from the parent folder of the jni folder. The library result will be inside the obj folder alongside the jni folder.
+2.- Copy the libraries: 
+
+In the main folder:
+	SystemUtils.jar -> from the VrAppSupport/SystemUtils/Libs/Android
+	VrApi.jar -> from the VrApi/Libs/Android
+In the armeabi-v7a
+	- libopenglloader.a -> from 1stParty/OpenGL_Loader/Projects/Android/obj/local/armeabi-v7a
+	- libvrapi.so -> from the VrApi/Libs/Android/armeabi-v7a
+	- libsystemutils.a -> from the VrAppSupport/SystemUtils/Libs/Android/armeabi-v7a
+	- libovrkernel.a -> from LibOVRKernel/Libs/Android/armeabi-v7a
+
+3.- Remember to copy the libraries to the libs folder of the test
