@@ -6,7 +6,7 @@ This project is the base for a bigger goal: provide Oculus Mobile Head Tracking 
 
 * [OculusMobileSDKHeadTrackingXWalkViewExtension](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension): A Crosswalk extension to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment based on the Crosswalk webview. 
 
-**IMPORTANT NOTE:** If you want to test WebVR on a Gear VR using its accurate head tracking, this project provides a test example ready to be used with any WebVR-enabled web page. Check the [How to use the library](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension#how-to-use-the-library) section for more details.
+  **IMPORTANT NOTE:** If you want to test WebVR on a Gear VR using its accurate head tracking in action right now, check the [How to use the library](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension#how-to-use-the-library) section of the OculusMobileSDKHeadTrackingXWalkViewExtension project.
 
 * [OculusMobileSDKHeadTrackingCordovaPlugin](https://github.com/judax/cordova-plugin-oculusmobilesdkheadtracking.git): A Cordova plugin to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment (under development, not fully functional yet).
 * [OculusMobileSDKHeadTrackingWebVR](https://github.com/judax/OculusMobileSDKHeadTrackingWebVR): A JavaScript file that injects the WebVR API using the underlying Oculus Mobile SDK Head Tracking mechanism exposed to JS through the Crosswalk extension or the Cordova plugin.
