@@ -27,7 +27,10 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 	private TextView linearAccelerationTextView = null;
 	private TextView angularVelocityTextView = null;
 	private TextView angularAccelerationTextView = null;
+	private TextView mountedTextView = null;
+	private TextView dockedTextView = null;
 	private HeadTrackingDataTextEditsUpdateRunnable runnable = new HeadTrackingDataTextEditsUpdateRunnable();
+	private Timer timer = null;
 	
 	/**
 	 * Shows the head tracking orientation values on the corresponding TextView-s.
@@ -65,6 +68,8 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 			linearAccelerationTextView.setText("linearAcceleration: " + getString(data.linearAccelerationX, data.linearAccelerationY, data.linearAccelerationZ));
 			angularVelocityTextView.setText("angularVelocity: " + getString(data.angularVelocityX, data.angularVelocityY, data.angularVelocityZ));
 			angularAccelerationTextView.setText("angularAcceleration: " + getString(data.angularAccelerationX, data.angularAccelerationY, data.angularAccelerationZ));
+			mountedTextView.setText("mounted: " + data.mounted);
+			dockedTextView.setText("docked: " + data.docked);
 		}
 	}
 	
@@ -87,6 +92,8 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		linearAccelerationTextView = (TextView)findViewById(R.id.linearAccelerationTextView);
 		angularVelocityTextView = (TextView)findViewById(R.id.angularVelocityTextView);
 		angularAccelerationTextView = (TextView)findViewById(R.id.angularAccelerationTextView);
+		mountedTextView = (TextView)findViewById(R.id.mountedTextView);
+		dockedTextView = (TextView)findViewById(R.id.dockedTextView);
 		
 		// Register to listen to Oculus Mobile SDK head tracking events
 		oculusMobileSDKHeadTracking.addOculusMobileSDKHeadTrackingListener(new OculusMobileSDKHeadTrackingListener()
@@ -126,17 +133,7 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 		// This view does not do/render anything but it has to be in the hierarchy. 
 		// For this reason, it will be added of 1 pixel size.
 		// This is definitively not the best way to add the view.
-		mainViewGroup.addView(oculusMobileSDKHeadTracking.getView(), new LinearLayout.LayoutParams(1, 1));
-		
-		// A task to update the UI information at 60 FPS
-    Timer timer = new Timer();
-    TimerTask doAsynchronousTask = new TimerTask() {       
-        @Override
-        public void run() {
-  				runOnUiThread(runnable);
-        }
-    };
-    timer.schedule(doAsynchronousTask, 0, 16);
+		mainViewGroup.addView(oculusMobileSDKHeadTracking.getView(), new LinearLayout.LayoutParams(1, 1));		
 	}
 	
 	@Override
@@ -144,18 +141,33 @@ public class OculusMobileSDKHeadTrackingTestActivity extends Activity
 	{
 		super.onResume();
 		oculusMobileSDKHeadTracking.resume();
+		
+		// Create a timer with an scheduled task at 60 FPS
+		timer = new Timer();
+	  TimerTask doAsynchronousTask = new TimerTask() {       
+	    @Override
+	    public void run() {
+				runOnUiThread(runnable);
+	    }
+	  };
+    timer.scheduleAtFixedRate(doAsynchronousTask, 0, 16);				
 	}
 	
 	@Override
 	protected void onPause()
 	{
+		// Cancel the timer and all the scheduled tasks
+    timer.cancel();
+    timer.purge();
+    timer = null;
+    
 		super.onPause();
 		oculusMobileSDKHeadTracking.pause();
 	}
 	
 	@Override
 	protected void onDestroy()
-	{
+	{   
 		super.onDestroy();
 		oculusMobileSDKHeadTracking.stop();
 	}

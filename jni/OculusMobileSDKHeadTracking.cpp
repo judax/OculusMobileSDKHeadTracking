@@ -537,6 +537,8 @@ private:
     jfieldID dataAngularAccelerationXFieldID;
     jfieldID dataAngularAccelerationYFieldID;
     jfieldID dataAngularAccelerationZFieldID;
+    jfieldID dataMountedFieldID;
+    jfieldID dataDockedFieldID;
     ovrMobile* ovr;
     long long frameIndex;
     ANativeWindow* nativeWindow;
@@ -584,6 +586,9 @@ private:
                     float eyeX = vrapi_GetSystemPropertyFloat(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_FOV_DEGREES_X);
                     float eyeY = vrapi_GetSystemPropertyFloat(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_FOV_DEGREES_Y);
                     float interpupillaryDistance = headModelParms.InterpupillaryDistance;
+                    
+                    LOG_MESSAGE("JUDAX: mounted = %d", vrapi_GetSystemStatusInt(&java, VRAPI_SYS_STATUS_MOUNTED));
+                    LOG_MESSAGE("JUDAX: docked = %d", vrapi_GetSystemStatusInt(&java, VRAPI_SYS_STATUS_DOCKED));
                     
                     java.Env->CallVoidMethod(oculusMobileSDKHeadTrackingJObject, headTrackingStartedMethodID, eyeX, eyeY, interpupillaryDistance);
                 }
@@ -743,6 +748,8 @@ public:
         dataAngularAccelerationXFieldID = jniEnv->GetFieldID(dataJClass, "angularAccelerationX", "F");
         dataAngularAccelerationYFieldID = jniEnv->GetFieldID(dataJClass, "angularAccelerationY", "F");
         dataAngularAccelerationZFieldID = jniEnv->GetFieldID(dataJClass, "angularAccelerationZ", "F");
+        dataMountedFieldID = jniEnv->GetFieldID(dataJClass, "mounted", "I");
+        dataDockedFieldID = jniEnv->GetFieldID(dataJClass, "docked", "I");
         
         ovrMessageQueue_Create(&messageQueue);
         
@@ -889,6 +896,8 @@ public:
         jniEnv->SetFloatField(dataJObject, dataAngularAccelerationXFieldID, tracking.HeadPose.AngularAcceleration.x);
         jniEnv->SetFloatField(dataJObject, dataAngularAccelerationYFieldID, tracking.HeadPose.AngularAcceleration.y);
         jniEnv->SetFloatField(dataJObject, dataAngularAccelerationZFieldID, tracking.HeadPose.AngularAcceleration.z);
+        jniEnv->SetIntField(dataJObject, dataMountedFieldID, vrapi_GetSystemStatusInt(&java, VRAPI_SYS_STATUS_MOUNTED));
+        jniEnv->SetIntField(dataJObject, dataDockedFieldID, vrapi_GetSystemStatusInt(&java, VRAPI_SYS_STATUS_DOCKED));
     }
 };
 

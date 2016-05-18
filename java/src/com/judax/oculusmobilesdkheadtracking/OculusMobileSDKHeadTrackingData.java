@@ -10,4 +10,6 @@ public class OculusMobileSDKHeadTrackingData
 	public float angularVelocityX, angularVelocityY, angularVelocityZ;
 	public float linearAccelerationX, linearAccelerationY, linearAccelerationZ;
 	public float angularAccelerationX, angularAccelerationY, angularAccelerationZ;
+	public int mounted;
+	public int docked;
 }
