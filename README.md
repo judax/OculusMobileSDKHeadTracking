@@ -5,6 +5,9 @@ The Oculus Mobile SDK allows to access a highly accurate head tracking hardware 
 This project is the base for a bigger goal: provide Oculus Mobile Head Tracking capabilities to web applications. Other projects help achieve this goal, so if you are interested in WebVR, please review the following git repos:
 
 * [OculusMobileSDKHeadTrackingXWalkViewExtension](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension): A Crosswalk extension to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment based on the Crosswalk webview. 
+
+**IMPORTANT NOTE:** If you want to test WebVR on a Gear VR using its accurate head tracking, this project provides a test example ready to be used with any WebVR-enabled web page. Check the [How to use the library](https://github.com/judax/OculusMobileSDKHeadTrackingXWalkViewExtension#how-to-use-the-library) section for more details.
+
 * [OculusMobileSDKHeadTrackingCordovaPlugin](https://github.com/judax/cordova-plugin-oculusmobilesdkheadtracking.git): A Cordova plugin to expose the Oculus Mobile SDK Head Tracking in a JavaScript/browser based environment (under development, not fully functional yet).
 * [OculusMobileSDKHeadTrackingWebVR](https://github.com/judax/OculusMobileSDKHeadTrackingWebVR): A JavaScript file that injects the WebVR API using the underlying Oculus Mobile SDK Head Tracking mechanism exposed to JS through the Crosswalk extension or the Cordova plugin.
 
@@ -166,7 +169,7 @@ This project provides all the necessary libraries to be able to build the final 
 
 ### WTF, an XCode project for Android development?
 
-I like to use IDEs, I think they provide a great way to work over code, check on compilation errors, etc. On mobile, I develop for both iOS and Android and both in C++ (with Objective-C and Java) and having the same IDE comes handy. XCode allows to call external scripts (ndk-build) and the output is also highlighted over the code in screen, making C++ JNI development quite simple. Is not perfect, as it does not provide debugging nore code syndication but it certainly helps. Anyway, using XCode is completely optional as in the end, the ndk-build command, the Android.mk and Application.mk are all that is needed to compile the Android native side of the library. The XCode project simply uses the `jni/BuildAndCopyToTest.sh` underneath as all the default build phases have been removed.
+I like to use IDEs, I think they provide a great way to work over code, check on compilation errors, etc. On mobile, I develop for both iOS and Android and both in C++ (with Objective-C and Java) and having the same IDE comes handy. XCode allows to call external scripts (ndk-build) and the output is also highlighted over the code in screen, making C++ JNI development quite simple. Is not perfect, as it does not provide debugging or code syndication but it certainly helps. Anyway, using XCode is completely optional as in the end, the ndk-build command, the Android.mk and Application.mk are all that is needed to compile the Android native side of the library. The XCode project simply uses the `jni/BuildAndCopyToTest.sh` underneath as all the default build phases have been removed.
 
 If you would like to use a different IDE, feel free to fork the project and provide a pull request with an Android Studio project for example.
 
@@ -199,6 +202,4 @@ Oculus Mobile SDK website
 * Improve the C++ code to decouple it from the Java code in case someone wants to use it from C++ directly. It might be complicated as, at least for now, an Activity and a surfaceview are needed, but there is room for improvement for sure. This improvement could lead to a better integration with already c++ code on other projects like Chromium.
 * Try to contact Oculus/Samsung to see if there is a better way/SDK to just access the Gear VR gyro driver without having to do so much Java/C++ code (create a surfaceview, a GL context, ...).
 * Add an Android Studio based project solution too and provide the library as an Android AAR.
-* Simplify the whole library:
-  - Do not use a native thread, just simply query for the head tracking values whenever they are requested from the Java side. This is a work in progress at the moment.
 * Expose the proximity sensor functionality
