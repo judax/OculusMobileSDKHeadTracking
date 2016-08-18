@@ -561,7 +561,6 @@ private:
             if ( ovr == NULL )
             {
                 ovrModeParms parms = vrapi_DefaultModeParms( &java );
-                parms.ResetWindowFullscreen = true;	// Must reset the FLAG_FULLSCREEN window flag when using a SurfaceView
                 
 #if EXPLICIT_GL_OBJECTS == 1
                 parms.Display = (size_t)egl.Display;
